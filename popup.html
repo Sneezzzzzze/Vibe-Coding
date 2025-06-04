@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>KMITL Schedule</title>
+  <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+  <div class="header">
+    <h1>My Schedule</h1>
+    <button id="refresh-button" title="Refresh schedule from KMITL page">Refresh</button>
+  </div>
+  <div id="schedule-container">
+    <div id="loading-message">Loading schedule...</div>
+    <ul id="schedule-list">
+      <!-- Schedule items will be dynamically inserted here -->
+    </ul>
+    <div id="no-schedule-message" style="display:none;">No schedule data found.</div>
+  </div>
+
+  <div id="ta-class-management">
+    <h2>Manage TA Classes</h2>
+    <form id="add-ta-class-form">
+      <div>
+        <label for="ta-subject">Subject/Name:</label>
+        <input type="text" id="ta-subject" name="ta-subject" required>
+      </div>
+      <div>
+        <label for="ta-day">Day:</label>
+        <select id="ta-day" name="ta-day" required>
+          <option value="Mon">Monday</option>
+          <option value="Tue">Tuesday</option>
+          <option value="Wed">Wednesday</option>
+          <option value="Thu">Thursday</option>
+          <option value="Fri">Friday</option>
+          <option value="Sat">Saturday</option>
+          <option value="Sun">Sunday</option>
+        </select>
+      </div>
+      <div>
+        <label for="ta-time">Time (e.g., 16:00-17:00):</label>
+        <input type="text" id="ta-time" name="ta-time" pattern="([01]?[0-9]|2[0-3]):[0-5][0-9]-([01]?[0-9]|2[0-3]):[0-5][0-9]" placeholder="HH:MM-HH:MM" required>
+      </div>
+      <div>
+        <label for="ta-room">Room:</label>
+        <input type="text" id="ta-room" name="ta-room">
+      </div>
+      <button type="submit" id="add-ta-button">Add TA Class</button>
+    </form>
+  </div>
+
+  <div id="export-controls">
+    <h2>Export Schedule</h2>
+    <button id="export-image-button">Export as Image (PNG)</button>
+    <button id="export-pdf-button">Export as PDF</button>
+    <div id="export-feedback" class="feedback-message" style="display:none;"></div>
+  </div>
+
+  <!-- Local libraries -->
+  <script src="lib/html2canvas.min.js"></script>
+  <script src="lib/jspdf.umd.min.js"></script>
+  <!-- Main popup script -->
+  <script src="popup.js"></script>
+</body>
+</html>

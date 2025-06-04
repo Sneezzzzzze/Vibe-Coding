@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "KMITL Schedule Enhancer",
+  "version": "0.1.0",
+  "description": "Enhances the KMITL schedule page.",
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self';"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.reg.kmitl.ac.th/u_student/report_studytable_show.php",
+        "https://www.reg.kmitl.ac.th/u_student/report_studytable_show.php*"
+      ],
+      "js": ["content_script.js"],
+      "css": ["styles.css"]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  }
+}

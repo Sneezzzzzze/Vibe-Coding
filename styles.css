@@ -1,0 +1,280 @@
+body {
+  font-family: sans-serif;
+  min-width: 400px;
+  max-width: 600px;
+  padding: 10px;
+  background-color: #f4f4f4;
+  color: #333;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 5px;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 1.2em;
+  color: #00509e;
+}
+
+#refresh-button {
+  padding: 5px 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+#refresh-button:hover {
+  background-color: #0056b3;
+}
+
+#schedule-container {
+  border: 1px solid #ccc;
+  padding: 10px;
+  background-color: #fff;
+  border-radius: 3px;
+  margin-bottom: 15px;
+}
+
+#loading-message, #no-schedule-message {
+  text-align: center;
+  padding: 15px;
+  color: #777;
+}
+
+.feedback-message { /* For export feedback */
+  text-align: center;
+  padding: 5px;
+  margin-top: 5px;
+  font-size: 0.9em;
+  color: #155724; /* Green for success */
+  background-color: #d4edda; /* Light green background */
+  border: 1px solid #c3e6cb;
+  border-radius: 3px;
+}
+
+.feedback-message.error { /* For export errors */
+    color: #721c24; /* Red for error */
+    background-color: #f8d7da; /* Light red background */
+    border-color: #f5c6cb;
+}
+
+
+#schedule-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  background-color: #fff; /* Ensure background for html2canvas */
+}
+
+.schedule-item {
+  border-bottom: 1px solid #eee;
+  padding: 8px 5px;
+  background-color: #fff; /* Ensure individual items have background */
+  cursor: grab;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
+.schedule-item:last-child {
+  border-bottom: none;
+}
+
+.schedule-item.dragging {
+  opacity: 0.5;
+  background: #cce5ff;
+  border: 1px dashed #007bff;
+}
+
+.item-content {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  flex-grow: 1;
+}
+
+
+.schedule-item .time {
+  font-weight: bold;
+  color: #00509e;
+  flex-basis: 100px;
+  margin-right: 5px;
+}
+
+.schedule-item .subject {
+  margin: 2px 0;
+  margin-right: 5px;
+}
+
+.schedule-item .room {
+  font-size: 0.9em;
+  color: #555;
+  flex-basis: 100%;
+  margin-left: 105px;
+}
+
+.schedule-item .day {
+  font-size: 0.9em;
+  color: #555;
+  padding-left: 5px;
+  font-weight: bold;
+  order: -1;
+  flex-basis: 50px;
+}
+
+.schedule-item.ta-class-item {
+  background-color: #e6ffed;
+  border-left: 3px solid #28a745;
+}
+
+.schedule-item.ta-class-item .time {
+  color: #1a7d32;
+}
+
+.ta-label {
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  font-size: 0.7em;
+  background-color: #28a745;
+  color: white;
+  padding: 1px 3px;
+  border-radius: 2px;
+  z-index: 1;
+}
+
+.item-controls {
+  display: flex;
+  align-items: center;
+  margin-left: 10px;
+  flex-shrink: 0;
+}
+
+.item-controls button {
+  background: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  padding: 3px 6px;
+  margin-left: 4px;
+  font-size: 1em; /* Made icons a bit larger */
+  border-radius: 3px;
+  line-height: 1; /* Ensure icon vertical alignment */
+}
+
+.item-controls .edit-ta-button {
+  color: #007bff;
+}
+.item-controls .edit-ta-button:hover {
+  background-color: #e0e0e0;
+  border-color: #007bff;
+}
+
+.item-controls .delete-ta-button {
+  color: #dc3545;
+}
+.item-controls .delete-ta-button:hover {
+  background-color: #e0e0e0;
+  border-color: #dc3545;
+}
+
+/* TA Class Management Form */
+#ta-class-management {
+  padding: 15px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  margin-bottom: 15px; /* Space before export controls */
+}
+
+#ta-class-management h2 {
+  margin-top: 0;
+  font-size: 1.1em;
+  color: #00509e;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+}
+
+#add-ta-class-form div {
+  margin-bottom: 8px;
+}
+
+#add-ta-class-form label {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 0.9em;
+  color: #555;
+}
+
+#add-ta-class-form input[type="text"],
+#add-ta-class-form select {
+  width: calc(100% - 12px);
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  box-sizing: border-box;
+}
+
+#add-ta-button {
+  background-color: #28a745;
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  margin-top: 5px;
+}
+
+#add-ta-button:hover {
+  background-color: #1e7e34;
+}
+
+/* Export Controls Styling */
+#export-controls {
+  padding: 15px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  margin-top: 15px;
+}
+
+#export-controls h2 {
+  margin-top: 0;
+  font-size: 1.1em;
+  color: #00509e;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+}
+
+#export-controls button {
+  background-color: #17a2b8; /* Info blue */
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  margin-right: 10px;
+  margin-bottom: 5px; /* For wrapping */
+}
+
+#export-controls button:hover {
+  background-color: #117a8b;
+}
+
+#export-image-button {
+  /* Specific styles if needed */
+}
+
+#export-pdf-button {
+  /* Specific styles if needed */
+}
