@@ -17,7 +17,7 @@
         "https://www.reg.kmitl.ac.th/u_student/report_studytable_show.php*"
       ],
       "js": ["content_script.js"],
-      "css": ["styles.css"]
+      "css": ["styles.css", "page_theme.css"]
     }
   ],
   "action": {

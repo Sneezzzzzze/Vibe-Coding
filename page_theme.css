@@ -1,0 +1,63 @@
+/* KMITL Schedule Page Theme - Example Styles */
+
+/* Overall Page Styles */
+body.reg-kmitl-ac-th { /* Add a specific class to body if possible, or target more precisely if body tag is too general */
+  background-color: #eef4f8 !important; /* Light blue background */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+  color: #333 !important;
+}
+
+/* Target the main content tables more specifically if possible */
+/* Using attributes from user-provided HTML - these might need adjustment for the live page */
+center > table[width="1246"], center > table[width="1258"] {
+  border-collapse: collapse !important;
+  margin-top: 20px !important;
+  margin-bottom: 20px !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+}
+
+/* Styling for table headers (ลำดับ, รหัสวิชา, etc.) */
+/* This targets tables that are likely to be the schedule or informational tables */
+table[bgcolor="#E1E1E1"] tr[bgcolor="#E1E1E1"] td, /* Header rows with specific bgcolor */
+table[width="1258"] tr > td[bgcolor="#E1E1E1"], /* Headers in the main schedule table based on user HTML */
+table tr > td[background="../images/label_m21.jpg"] /* The 'ตารางเรียนส่วนบุคคล' header */
+ {
+  background-color: #007bff !important; /* KMITL-like blue */
+  color: white !important;
+  font-weight: bold !important;
+  padding: 8px !important;
+  text-align: center !important;
+}
+
+/* Styling for data rows in the main schedule table */
+table[width="1258"] tr[bgcolor="#f0f0f0"] td,
+table[width="1258"] tr[bgcolor="#fef8f0"] td {
+  padding: 8px !important; /* Increase padding for better readability */
+  border-bottom: 1px solid #ddd !important;
+  font-size: 0.95em !important;
+}
+
+table[width="1258"] tr[bgcolor="#f0f0f0"]:hover td,
+table[width="1258"] tr[bgcolor="#fef8f0"]:hover td {
+  background-color: #e9ecef !important; /* Light hover effect for data rows */
+}
+
+/* Specific font changes for critical data if needed */
+table[width="1258"] td font[color="#FF6600"] { /* Lab/Practice items */
+  color: #d9534f !important; /* Change orange to a shade of red for distinction */
+  font-weight: bold !important;
+}
+
+/* Links on the page */
+a {
+  color: #0056b3 !important;
+}
+a:hover {
+  color: #003d80 !important;
+  text-decoration: underline !important;
+}
+
+/* Note: These are example styles. More specific selectors and styles would be needed
+   for a comprehensive theme based on the live KMITL schedule page structure.
+   The use of !important is to help override existing page styles, but should be used judiciously.
+*/
