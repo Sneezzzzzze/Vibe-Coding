@@ -1,63 +1,119 @@
-/* KMITL Schedule Page Theme - Example Styles */
+@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap');
+
+/* KMITL Schedule Page Theme - KMITL+ Inspired Styles */
 
 /* Overall Page Styles */
-body.reg-kmitl-ac-th { /* Add a specific class to body if possible, or target more precisely if body tag is too general */
-  background-color: #eef4f8 !important; /* Light blue background */
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+body {
+  background-color: #f0f2f5 !important; /* Light grey background, common in modern UIs */
+  font-family: 'Prompt', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
   color: #333 !important;
+  line-height: 1.6 !important;
 }
 
-/* Target the main content tables more specifically if possible */
-/* Using attributes from user-provided HTML - these might need adjustment for the live page */
-center > table[width="1246"], center > table[width="1258"] {
-  border-collapse: collapse !important;
-  margin-top: 20px !important;
-  margin-bottom: 20px !important;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
-}
-
-/* Styling for table headers (ลำดับ, รหัสวิชา, etc.) */
-/* This targets tables that are likely to be the schedule or informational tables */
-table[bgcolor="#E1E1E1"] tr[bgcolor="#E1E1E1"] td, /* Header rows with specific bgcolor */
-table[width="1258"] tr > td[bgcolor="#E1E1E1"], /* Headers in the main schedule table based on user HTML */
-table tr > td[background="../images/label_m21.jpg"] /* The 'ตารางเรียนส่วนบุคคล' header */
- {
-  background-color: #007bff !important; /* KMITL-like blue */
+/* Attempt to find the table holding the main page title "ตารางเรียนส่วนบุคคล" and student info */
+/* This selector will need verification against the original KMITL HTML structure */
+/* It assumes the student info is near the top in a specific layout */
+/* This selector targets the "ตารางเรียนส่วนบุคคล" header cell */
+center > table:first-of-type tr > td[background="../images/label_m21.jpg"],
+/* This selector targets the student information cells like Faculty, Department etc. */
+center > table:first-of-type table[border="0"] td[height="18"][bgcolor="#E1E1E1"] {
+  background-image: none !important; /* Remove old background image if any */
+  background-color: rgb(249, 115, 22) !important; /* KMITL+ Orange */
   color: white !important;
-  font-weight: bold !important;
-  padding: 8px !important;
   text-align: center !important;
+  padding: 8px 6px !important; /* Adjusted padding */
+  font-weight: 500 !important;
 }
 
-/* Styling for data rows in the main schedule table */
-table[width="1258"] tr[bgcolor="#f0f0f0"] td,
-table[width="1258"] tr[bgcolor="#fef8f0"] td {
-  padding: 8px !important; /* Increase padding for better readability */
-  border-bottom: 1px solid #ddd !important;
-  font-size: 0.95em !important;
+/* Remove extra borders/spacer rows in this header block if they exist */
+center > table:first-of-type table[border="0"] td[height="1"][bgcolor="#E1E1E1"] { /* Likely spacer rows */
+    display: none !important; /* Hide spacer rows */
 }
 
-table[width="1258"] tr[bgcolor="#f0f0f0"]:hover td,
-table[width="1258"] tr[bgcolor="#fef8f0"]:hover td {
-  background-color: #e9ecef !important; /* Light hover effect for data rows */
+/* Ensure text within these cells is styled correctly */
+center > table:first-of-type table[border="0"] td[height="18"][bgcolor="#E1E1E1"] strong,
+center > table:first-of-type table[border="0"] td[height="18"][bgcolor="#E1E1E1"] font[color="black"] { /* Target specific font tags if used */
+    color: white !important; /* Make <strong> and specific font text white */
+    font-weight: 500 !important;
+}
+center > table:first-of-type table[border="0"] td[height="18"][bgcolor="#E1E1E1"] p { /* If <p> tags are used inside */
+    margin: 2px 0 !important;
+    padding: 0 !important;
+    color: white !important; /* Ensure p tag text is also white */
+}
+
+
+/* Styles for the main schedule table container */
+/* This selector should match what content_script.js uses to identify the schedule table */
+table[width="1258"] {
+  background-color: #ffffff !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+  margin: 25px auto !important; /* Center it and add some margin */
+  border-collapse: separate !important; /* Needed for border-radius on table */
+  border-spacing: 0 !important;
+  overflow: hidden !important; /* To make border-radius clip inner content */
+  font-size: 0.9em !important; /* Slightly smaller base font for the table */
+}
+
+/* Clean up schedule table headers */
+/* Assuming first row of tbody is header, or specific td bgcolor */
+table[width="1258"] > tbody > tr:first-child td[bgcolor="#E1E1E1"],
+table[width="1258"] > tbody > tr > td[class="LabelFieldName"] /* Another common way headers are defined */
+ {
+    background-color: #f8f9fa !important; /* Light grey for headers, distinct from data */
+    color: #212529 !important; /* Darker text for header contrast */
+    font-weight: 600 !important;
+    padding: 12px 10px !important; /* More padding for headers */
+    border-bottom: 2px solid #dee2e6 !important;
+    text-align: center !important;
+}
+
+/* Clean up schedule table data cells */
+table[width="1258"] td {
+    padding: 10px 10px !important; /* Standardized padding */
+    border: none !important; /* Remove old borders */
+    border-bottom: 1px solid #e9ecef !important; /* Light bottom border for rows */
+    color: #495057 !important; /* Softer text color for data */
+}
+/* Remove border for the last row's cells */
+table[width="1258"] > tbody > tr:last-child td {
+    border-bottom: none !important;
+}
+/* Hover effect for data rows */
+table[width="1258"] > tbody > tr:not(:first-child):hover td { /* Exclude header row from hover if it's part of tbody */
+  background-color: #f1f3f5 !important; /* Subtle hover for data rows */
 }
 
 /* Specific font changes for critical data if needed */
-table[width="1258"] td font[color="#FF6600"] { /* Lab/Practice items */
-  color: #d9534f !important; /* Change orange to a shade of red for distinction */
-  font-weight: bold !important;
+table[width="1258"] td font[color="#FF6600"], /* Original Lab/Practice items */
+table[width="1258"] td font[color="red"] /* Other highlighted items */
+{
+  color: #dc3545 !important; /* Bootstrap's danger red for distinction */
+  font-weight: 500 !important; /* Slightly bolder for emphasis */
+}
+table[width="1258"] td font[color="blue"] { /* e.g. Midterm/Final exam text if any */
+    color: #007bff !important; /* Bootstrap's primary blue */
+    font-weight: 500 !important;
 }
 
-/* Links on the page */
-a {
-  color: #0056b3 !important;
+
+/* Links on the page (general) */
+a, a:link, a:visited {
+  color: #007bff !important; /* KMITL+ like blue for links */
+  text-decoration: none !important;
 }
 a:hover {
-  color: #003d80 !important;
+  color: #0056b3 !important;
   text-decoration: underline !important;
 }
 
-/* Note: These are example styles. More specific selectors and styles would be needed
-   for a comprehensive theme based on the live KMITL schedule page structure.
+/* Hide any unwanted horizontal rules or specific elements if needed */
+hr {
+    display: none !important;
+}
+
+/* Note: These styles are based on common KMITL schedule page structures and KMITL+ aesthetics.
+   They will likely need fine-tuning once tested on the live page, especially selectors for the header info.
    The use of !important is to help override existing page styles, but should be used judiciously.
 */
