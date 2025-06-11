@@ -152,10 +152,10 @@ function extractScheduleDataFromPage() {
     // Column 8: Lecturer (ผู้สอน)
 
     // Adjust for potential colspans in exam date cells, which might shift day/time/room indices
-    let courseCodeCellIndex = 1;
-    let courseNameCellIndex = 2;
-    let dayTimeCellIndex = 6;
-    let roomCellIndex = 7;
+    let courseCodeCellIndex = 2;
+    let courseNameCellIndex = 4;
+    let dayTimeCellIndex = 12;
+    let roomCellIndex = 14;
 
     // A simple check for colspans affecting indices. If a cell has colspan, subsequent indices might shift.
     // This is a basic heuristic. A more robust way would be to count actual distinct data cells.
