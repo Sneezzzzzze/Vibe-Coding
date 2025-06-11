@@ -94,8 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     currentScheduleData = scheduleData;
   };
-  const fetchScheduleDataFromContentScript = async () => { /* ... as before ... */ };
- {
+  const fetchScheduleDataFromContentScript = async () => {
     return new Promise((resolve, reject) => {
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         if (chrome.runtime.lastError) return reject(new Error("Tabs: " + chrome.runtime.lastError.message));
@@ -118,9 +117,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const handleAddOrUpdateTaClassSubmit = async (event) => { /* ... as before ... */ };
 
   // --- Simplified versions of copied async data functions for brevity in this final review block ---
-  fetchScheduleDataFromContentScript = async () => { /* Assume implemented as previously, returns Promise<Array> */
-    return new Promise((resolve, reject) => {
-  };
   saveScheduleOrder = async () => { /* Assume implemented as previously */
       const orderedIds = currentScheduleData.map(item => item.id);
       await chrome.storage.local.set({ scheduleOrder: orderedIds });
