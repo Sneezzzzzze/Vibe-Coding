@@ -95,30 +95,31 @@ document.addEventListener('DOMContentLoaded', () => {
     currentScheduleData = scheduleData;
   };
   const fetchScheduleDataFromContentScript = async () => { /* ... as before ... */ };
-  const fetchTaClassesFromStorage = async () => { /* ... as before ... */ };
-  const loadScheduleAndTaData = async () => { /* ... as before ... */ };
+ {
+    return new Promise((resolve, reject) => {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (chrome.runtime.lastError) return reject(new Error("Tabs: " + chrome.runtime.lastError.message));
+        if (!tabs || tabs.length === 0) return reject(new Error("No active tab."));
+        const activeTab = tabs[0];
+        if (!activeTab.id) return reject(new Error("Active tab unsuitable."));
+
+        chrome.tabs.sendMessage(activeTab.id, { action: "getScheduleData" }, (response) => {
+          if (chrome.runtime.lastError) return reject(new Error("Msg: " + chrome.runtime.lastError.message.split('.')[0])); // Split to get first part of message
+          if (response && response.status === "success") resolve(response.data.map(item => ({ ...item, id: ensureItemId({...item, type: 'regular'}), type: 'regular' }))); // Ensure IDs for regular items
+          else if (response && response.status === "error") reject(new Error("CS: " + response.message));
+          else reject(new Error("No valid CS response."));
+        });
+      });
+    });
+  };
+ const fetchTaClassesFromStorage = async () => { /* ... as before ... */ };
+ const loadScheduleAndTaData = async () => { /* ... as before ... */ };
   const saveScheduleOrder = async () => { /* ... as before ... */ };
   const handleAddOrUpdateTaClassSubmit = async (event) => { /* ... as before ... */ };
 
   // --- Simplified versions of copied async data functions for brevity in this final review block ---
   fetchScheduleDataFromContentScript = async () => { /* Assume implemented as previously, returns Promise<Array> */
     return new Promise((resolve, reject) => {
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        if (chrome.runtime.lastError) return reject(new Error("Tabs: " + chrome.runtime.lastError.message));
-        if (!tabs || tabs.length === 0) return reject(new Error("No active tab.")); const activeTab = tabs[0];
-        if (!activeTab.id) return reject(new Error("Active tab unsuitable."));
-        chrome.tabs.sendMessage(activeTab.id, { action: "getScheduleData" }, (response) => {
-          if (chrome.runtime.lastError) return reject(new Error("Msg: " + chrome.runtime.lastError.message.split('.')[0]));
-          if (response && response.status === "success") resolve(response.data.map(item => ({ ...item, id: ensureItemId({...item, type: 'regular'}), type: 'regular' })));
-          else if (response && response.status === "error") reject(new Error("CS: " + response.message)); else reject(new Error("No valid CS response."));
-        });
-      });
-    });
-  };
-  fetchTaClassesFromStorage = async () => { /* Assume implemented as previously, returns Promise<Array> */
-    const result = await chrome.storage.local.get('taClasses');
-    if (chrome.runtime.lastError) throw new Error("Storage get: " + chrome.runtime.lastError.message);
-    return (result.taClasses || []).map(item => ({ ...item, id: ensureItemId({...item, type: 'TA'}), type: 'TA'}));
   };
   saveScheduleOrder = async () => { /* Assume implemented as previously */
       const orderedIds = currentScheduleData.map(item => item.id);
