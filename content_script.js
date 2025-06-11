@@ -9,90 +9,163 @@
 console.log("KMITL Schedule Enhancer: Content script injected and attempting to run.");
 
 /**
- * Extracts schedule data from the KMITL schedule page.
- * This is a PLACEHOLDER function. It needs to be adapted to the actual
- * structure of the KMITL schedule page.
- *
+ * Parses the day/time string and room string to create schedule items.
+ * @param {string} dayTimeString - Raw string like "ศ. 09:00-11:00 น.(ท)<br><font color="#FF6600">ศ. 11:00-13:00 น.(ป)</font>"
+ * @param {string} roomString - Raw string like "L306<br><font color="#FF6600">L306</font>"
+ * @param {string} courseName - The name of the course.
+ * @param {string} courseCode - The code of the course.
  * @returns {Array<Object>} An array of schedule item objects.
- *          Each object should have: { day: String, time: String, subject: String, room: String, type: 'regular' }
- *          Returns an empty array if no data is found or if an error occurs.
+ */
+function parseDayTimeRoom(dayTimeString, roomString, courseName, courseCode) {
+  const items = [];
+  const dayTimeParts = dayTimeString.split(/<br\s*\/?>/i);
+  const roomParts = roomString.split(/<br\s*\/?>/i);
+
+  const dayMap = {
+    "จ.": "Mon", "อ.": "Tue", "พ.": "Wed", "พฤ.": "Thu", "ศ.": "Fri", "ส.": "Sat", "อา.": "Sun",
+    "จ": "Mon", "อ": "Tue", "พ": "Wed", "พฤ": "Thu", "ศ": "Fri", "ส": "Sat", "อา": "Sun" // Handle cases without dot
+  };
+
+  for (let i = 0; i < dayTimeParts.length; i++) {
+    const part = dayTimeParts[i].replace(/<font[^>]*>|<\/font>/gi, '').trim(); // Remove font tags
+    const room = roomParts[i] ? roomParts[i].replace(/<font[^>]*>|<\/font>/gi, '').trim() : (roomParts[0] ? roomParts[0].replace(/<font[^>]*>|<\/font>/gi, '').trim() : ''); // Fallback to first room if not enough room parts
+
+    if (part === '-' || !part) continue; // Skip if part is just a dash or empty
+
+    const dayMatch = part.match(/([ก-ฮ]+.?)/u);
+    const timeMatch = part.match(/(\d{2}:\d{2}-\d{2}:\d{2})/);
+    const sessionTypeMatch = part.match(/\((ท|ป)\)/); // (ท) for Theory, (ป) for Lab
+
+    const dayAbbr = dayMatch ? dayMatch[1].trim() : null;
+    const day = dayAbbr ? (dayMap[dayAbbr] || dayAbbr) : "N/A"; // Convert to English or keep original if not found
+    const time = timeMatch ? timeMatch[1] : "N/A";
+
+    let subjectWithSessionType = courseName;
+    if (sessionTypeMatch) {
+      const type = sessionTypeMatch[1] === 'ท' ? '(Theory)' : '(Lab)';
+      subjectWithSessionType = `${courseName} ${type}`;
+    }
+
+    if (day !== "N/A" && time !== "N/A") {
+      items.push({
+        day: day,
+        time: time,
+        subject: subjectWithSessionType,
+        room: room,
+        type: 'regular',
+        courseCode: courseCode
+      });
+    } else {
+      console.warn(`Content Script: Could not parse day/time from: "${part}" for course ${courseCode}`);
+    }
+  }
+  return items;
+}
+
+
+/**
+ * Extracts schedule data from the KMITL schedule page.
+ * @returns {Array<Object>} An array of schedule item objects.
  */
 function extractScheduleDataFromPage() {
   console.log("Content Script: extractScheduleDataFromPage() called.");
-
-  // ** --- Placeholder Scraping Logic --- **
-  // The following is an EXAMPLE of how you might approach scraping.
-  // You will need to inspect the actual KMITL schedule page to determine the correct selectors.
-
   const scheduleItems = [];
 
-  // Example: If schedule data is in a table with id="scheduleTable"
-  // const scheduleTable = document.getElementById('scheduleTable');
-  // if (scheduleTable) {
-  //   const rows = scheduleTable.querySelectorAll('tbody tr'); // Get all rows in the table body
-  //   rows.forEach(row => {
-  //     try {
-  //       // Assuming columns are in order: Day, Time, Subject, Room
-  //       const cells = row.querySelectorAll('td');
-  //       if (cells.length >= 4) {
-  //         const day = cells[0].innerText.trim();
-  //         const time = cells[1].innerText.trim();
-  //         const subject = cells[2].innerText.trim();
-  //         const room = cells[3].innerText.trim();
+  // Select the second table with width="1258" as it's more likely the main schedule table.
+  const tables = document.querySelectorAll('table[width="1258"]');
+  const scheduleTable = tables.length > 1 ? tables[1] : null;
 
-  //         if (subject && time) { // Basic validation
-  //           scheduleItems.push({
-  //             day: day,
-  //             time: time,
-  //             subject: subject,
-  //             room: room,
-  //             type: 'regular' // Mark as a regular schedule item
-  //           });
-  //         }
-  //       }
-  //     } catch (e) {
-  //       console.error("Content Script: Error parsing a row:", e, row);
-  //     }
-  //   });
-  // } else {
-  //   console.warn("Content Script: Could not find the expected schedule table (e.g., #scheduleTable).");
-  // }
-
-  // Example: If schedule data is in a list of divs, each with class "course-entry"
-  // const courseEntries = document.querySelectorAll('.course-entry');
-  // courseEntries.forEach(entry => {
-  //   try {
-  //     const subject = entry.querySelector('.course-subject')?.innerText.trim();
-  //     const time = entry.querySelector('.course-time')?.innerText.trim();
-  //     const day = entry.querySelector('.course-day')?.innerText.trim();
-  //     const room = entry.querySelector('.course-room')?.innerText.trim();
-  //     if (subject && time && day) {
-  //       scheduleItems.push({ day, time, subject, room, type: 'regular' });
-  //     }
-  //   } catch(e) {
-  //     console.error("Content Script: Error parsing a course entry:", e, entry);
-  //   }
-  // });
-  // if (courseEntries.length === 0) {
-  //    console.warn("Content Script: Could not find any elements matching '.course-entry'.");
-  // }
-
-
-  // ** --- End of Placeholder Scraping Logic --- **
-
-  // If no items were scraped, return the mock data for testing purposes.
-  // REMOVE THIS MOCK DATA WHEN IMPLEMENTING ACTUAL SCRAPING.
-  if (scheduleItems.length === 0) {
-    console.warn("Content Script: No actual data scraped. Returning MOCK data for testing.");
-    const mockDataFromContentScript = [
-      { day: "Mon", time: "09:00-12:00", subject: "Mock Eng. Math (CS)", room: "ECC-701 (CS)", type: 'regular' },
-      { day: "Wed", time: "13:00-16:00", subject: "Mock Thermo. (CS)", room: "CHE-203 (CS)", type: 'regular' },
-      { day: "Fri", time: "10:00-11:00", subject: "Mock Ethics (CS)", room: "GEN-101 (CS)", type: 'regular' }
-    ];
-    return mockDataFromContentScript;
+  if (!scheduleTable) {
+    console.warn("Content Script: Could not find the main schedule table (expected second table with width='1258').");
+    // Attempt to find a table with 'รหัสวิชา' header as a fallback
+    const allTables = document.querySelectorAll('table');
+    for (let table of allTables) {
+        if (table.innerText.includes('รหัสวิชา') && table.innerText.includes('ชื่อวิชา')) {
+            console.log("Content Script: Found table by header content as a fallback.");
+            scheduleTable = table;
+            break;
+        }
+    }
+    if (!scheduleTable) {
+        console.error("Content Script: Still could not find the schedule table using fallback method.");
+        return [];
+    }
   }
 
-  console.log(`Content Script: Extracted ${scheduleItems.length} items from page.`);
+  const rows = scheduleTable.querySelectorAll('tbody tr');
+  console.log(`Content Script: Found ${rows.length} rows in the schedule table.`);
+
+  rows.forEach((row, rowIndex) => {
+    // Skip header rows - typical headers contain 'รหัสวิชา', 'ชื่อวิชา', or are very short.
+    // Also skip rows that are clearly not data rows based on cell count or content.
+    const headerCheckText = row.innerText.toLowerCase();
+    if (rowIndex < 1 || headerCheckText.includes('รหัสวิชา') || headerCheckText.includes('ชื่อวิชา') || row.cells.length < 8) {
+      console.log(`Content Script: Skipping row ${rowIndex} (likely header or irrelevant). Text: ${headerCheckText}`);
+      return;
+    }
+
+    const cells = row.querySelectorAll('td');
+    // Ensure cells are properly selected and have content.
+    // The indices are based on visual inspection of typical KMITL schedule HTML structure.
+    // Column 0: sequence number
+    // Column 1: course code (รหัสวิชา)
+    // Column 2: course name (ชื่อวิชา)
+    // Column 3: credits (หน่วยกิต)
+    // Column 4: Midterm Date/Time (วันเวลาสอบกลางภาค) - may contain colspan
+    // Column 5: Final Date/Time (วันเวลาสอบปลายภาค) - may contain colspan
+    // Column 6: Day/Time (วัน-เวลาเรียน)
+    // Column 7: Room (ห้องเรียน)
+    // Column 8: Lecturer (ผู้สอน)
+
+    // Adjust for potential colspans in exam date cells, which might shift day/time/room indices
+    let courseCodeCellIndex = 1;
+    let courseNameCellIndex = 2;
+    let dayTimeCellIndex = 6;
+    let roomCellIndex = 7;
+
+    // A simple check for colspans affecting indices. If a cell has colspan, subsequent indices might shift.
+    // This is a basic heuristic. A more robust way would be to count actual distinct data cells.
+    if (cells[4] && cells[4].getAttribute('colspan')) {
+        const colspanVal = parseInt(cells[4].getAttribute('colspan'), 10);
+        if (colspanVal > 1) { // if midterm cell spans multiple columns
+            // This logic might need refinement if both midterm and final have colspans
+            // or if the structure varies significantly.
+            // For now, assume if cells[4] has colspan, it pushes dayTime and room.
+        }
+    }
+     // A more direct way: find cells by expected content if indices are unreliable
+     // For now, we stick to indices and adjust if clearly needed.
+     // Let's assume the critical cells are:
+     // cells[1] = course code, cells[2] = course name, cells[6] = day/time, cells[7] = room
+     // This needs to be verified with actual HTML. If colspans are common before day/time, indices shift.
+
+    if (cells.length > 7) { // Ensure enough cells exist
+      const courseCode = cells[courseCodeCellIndex]?.innerText.trim();
+      const courseName = cells[courseNameCellIndex]?.innerText.trim();
+      const dayTimeString = cells[dayTimeCellIndex]?.innerHTML.trim(); // Use innerHTML for <br> and <font> tags
+      const roomString = cells[roomCellIndex]?.innerHTML.trim(); // Use innerHTML
+
+      if (courseCode && courseName && dayTimeString && roomString && courseCode !== '-' && courseName !== '-') {
+        console.log(`Content Script: Processing row ${rowIndex}: Code: ${courseCode}, Name: ${courseName}, Day/Time: "${dayTimeString}", Room: "${roomString}"`);
+        try {
+          const items = parseDayTimeRoom(dayTimeString, roomString, courseName, courseCode);
+          scheduleItems.push(...items);
+        } catch (e) {
+          console.error(`Content Script: Error parsing day/time/room for ${courseCode} - ${courseName}:`, e);
+        }
+      } else {
+        console.warn(`Content Script: Skipped row ${rowIndex} due to missing critical data (Code: ${courseCode}, Name: ${courseName}, Day/Time: ${dayTimeString}, Room: ${roomString}).`);
+      }
+    } else {
+      console.warn(`Content Script: Skipped row ${rowIndex} because it has less than 8 cells (${cells.length}). Content: ${row.innerText}`);
+    }
+  });
+
+  if (scheduleItems.length === 0) {
+    console.warn("Content Script: No schedule data extracted from the page. The page might not be a KMITL schedule, or the structure has changed.");
+  } else {
+    console.log(`Content Script: Successfully extracted ${scheduleItems.length} schedule items.`);
+  }
   return scheduleItems;
 }
 
