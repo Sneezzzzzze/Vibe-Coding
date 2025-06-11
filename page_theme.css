@@ -117,3 +117,190 @@ hr {
    They will likely need fine-tuning once tested on the live page, especially selectors for the header info.
    The use of !important is to help override existing page styles, but should be used judiciously.
 */
+
+/* Styling for the TA Classes container injected by content_script.js */
+#custom-ta-classes-container {
+  margin: 20px auto !important; /* Consistent with main table margin */
+  padding: 20px !important; /* Increased padding */
+  background-color: #ffffff !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+  max-width: 1258px; /* Optional: align with table width if the table itself doesn't span 100% of this */
+  font-size: 0.95em !important; /* Slightly larger font for TA section */
+}
+
+#custom-ta-classes-container h3 { /* Title like "TA Classes (From Extension)" */
+  color: rgb(249, 115, 22) !important; /* KMITL+ Orange for title */
+  border-bottom: 2px solid #f0f2f5 !important; /* Lighter border to match new body bg */
+  padding-bottom: 12px !important;
+  margin-top: 0 !important;
+  margin-bottom: 18px !important;
+  font-size: 1.3em !important; /* Adjusted for better hierarchy */
+  font-weight: 600 !important;
+}
+
+#custom-ta-classes-container p { /* For "No TA classes" message or other general text */
+    color: #6c757d !important; /* Bootstrap secondary text color */
+    font-style: italic !important;
+    margin-top: 5px; /* Ensure some space if it's the only child */
+}
+
+#custom-ta-classes-container ul {
+  list-style-type: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+#custom-ta-classes-container ul li {
+  background-color: #fdfdfe !important; /* Very light off-white, slightly different from container */
+  border: 1px solid #e9ecef !important; /* Softer border */
+  border-radius: 6px !important;
+  padding: 12px 15px !important;
+  margin-bottom: 10px !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important; /* Softer shadow */
+  transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
+  line-height: 1.5; /* Specific line height for list items */
+}
+
+#custom-ta-classes-container ul li:hover {
+  box-shadow: 0 3px 7px rgba(0,0,0,0.08) !important; /* Slightly more pronounced hover shadow */
+  transform: translateY(-1px); /* Subtle lift effect */
+}
+
+#custom-ta-classes-container ul li strong {
+  color: #0069d9 !important; /* Darker KMITL Blue for TA subject */
+  font-size: 1.05em !important; /* Slightly smaller than h3, but distinct */
+  font-weight: 500 !important; /* Medium weight for TA subject */
+  display: block;
+  margin-bottom: 5px;
+}
+
+/* Ensure text within TA class items is not overly bold or large from general table rules */
+#custom-ta-classes-container ul li,
+#custom-ta-classes-container ul li span, /* If spans are used inside the innerHTML */
+#custom-ta-classes-container ul li div { /* If divs are used inside the innerHTML */
+    font-size: 0.9rem !important; /* Reset font size for content within LI if needed */
+    color: #495057 !important; /* Consistent text color */
+}
+
+#custom-ta-classes-container ul li strong { /* Re-apply strong specific style */
+    font-size: 1.05em !important;
+    color: #0069d9 !important;
+    font-weight: 500 !important;
+}
+
+/* Styles for In-Page TA Form and Button */
+#inpage-add-ta-button {
+  background-color: rgb(249, 115, 22) !important; /* KMITL+ Orange */
+  color: white !important;
+  border: none !important;
+  border-radius: 30px !important; /* More rounded */
+  padding: 12px 20px !important; /* Adjusted padding */
+  font-size: 1em !important; /* Standardized font size */
+  font-weight: 600 !important;
+  font-family: 'Prompt', sans-serif !important; /* Ensure font consistency */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important; /* Slightly stronger shadow */
+  cursor: pointer !important;
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease !important;
+  position: fixed !important;
+  bottom: 25px !important; /* Adjusted position */
+  right: 25px !important;
+  z-index: 10000 !important;
+}
+
+#inpage-add-ta-button:hover {
+  background-color: rgb(230, 100, 0) !important; /* Darker orange */
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3) !important; /* Enhanced shadow on hover */
+}
+
+#inpage-ta-form-container {
+  background-color: #ffffff !important;
+  border-radius: 10px !important; /* Slightly more rounded */
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2) !important; /* Softer, larger shadow for modal */
+  padding: 25px 30px !important;
+  width: 420px !important;
+  max-width: 90vw !important;
+  border: none !important;
+  z-index: 10001 !important;
+  /* JS handles position:fixed, top/left/transform for centering */
+}
+
+#inpage-ta-form-container h3 {
+  color: rgb(249, 115, 22) !important; /* KMITL+ Orange */
+  font-size: 1.6em !important; /* Larger title */
+  font-weight: 600 !important;
+  margin-top: 0 !important;
+  margin-bottom: 25px !important; /* More space below title */
+  text-align: center;
+  border-bottom: 1px solid #dee2e6 !important; /* Subtler border */
+  padding-bottom: 15px;
+}
+
+#inpage-ta-form-container div { /* Applies to each form group */
+  margin-bottom: 18px !important; /* Consistent spacing */
+}
+
+#inpage-ta-form-container label {
+  display: block !important;
+  margin-bottom: 8px !important; /* More space after label */
+  font-weight: 500 !important;
+  color: #495057 !important; /* Slightly darker text for labels */
+  font-size: 0.9em !important;
+}
+
+#inpage-ta-form-container input[type="text"],
+#inpage-ta-form-container select {
+  width: 100% !important;
+  padding: 10px 14px !important; /* Slightly more padding */
+  border: 1px solid #ced4da !important; /* Standard Bootstrap border color */
+  border-radius: 5px !important;
+  box-sizing: border-box !important;
+  font-family: 'Prompt', sans-serif !important;
+  font-size: 0.95em !important; /* Slightly smaller font in inputs */
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+  background-color: #f8f9fa !important; /* Light bg for inputs */
+}
+
+#inpage-ta-form-container input[type="text"]:focus,
+#inpage-ta-form-container select:focus {
+  border-color: rgb(249, 115, 22) !important; /* Orange focus */
+  box-shadow: 0 0 0 0.2rem rgba(249, 115, 22, 0.25) !important; /* Bootstrap-like focus shadow */
+  outline: none !important;
+  background-color: #fff !important; /* White bg on focus */
+}
+
+#inpage-ta-form-container button {
+  padding: 10px 20px !important; /* More horizontal padding for buttons */
+  border: none !important;
+  border-radius: 5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  font-size: 1em !important;
+  font-family: 'Prompt', sans-serif !important;
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+#inpage-ta-form-container #inpage-ta-save-button {
+  background-color: rgb(249, 115, 22) !important; /* KMITL+ Orange */
+  color: white !important;
+}
+
+#inpage-ta-form-container #inpage-ta-save-button:hover {
+  background-color: rgb(230, 100, 0) !important; /* Darker orange */
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
+}
+
+#inpage-ta-form-container #inpage-ta-cancel-button {
+  background-color: #6c757d !important; /* Gray - Bootstrap secondary */
+  color: white !important;
+  margin-left: 10px !important;
+}
+
+#inpage-ta-form-container #inpage-ta-cancel-button:hover {
+  background-color: #5a6268 !important; /* Darker Gray */
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
+}

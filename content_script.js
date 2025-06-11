@@ -8,6 +8,39 @@
 
 console.log("KMITL Schedule Enhancer: Content script injected and attempting to run.");
 
+// --- Storage and Utility Functions ---
+async function fetchTaClassesFromStorage() { // Changed to async function for direct use with await
+  return new Promise((resolve, reject) => {
+    chrome.storage.local.get(['taClasses'], (result) => {
+      if (chrome.runtime.lastError) {
+        console.error("Content Script - Error fetching TA classes:", chrome.runtime.lastError.message);
+        return reject(chrome.runtime.lastError);
+      }
+      const taClasses = Array.isArray(result.taClasses) ? result.taClasses : [];
+      console.log("Content Script - Fetched TA classes:", taClasses);
+      resolve(taClasses);
+    });
+  });
+}
+
+async function saveTaClassesToStorage(taClassesArray) { // Changed to async function
+  return new Promise((resolve, reject) => {
+    chrome.storage.local.set({ taClasses: taClassesArray }, () => {
+      if (chrome.runtime.lastError) {
+        console.error("Content Script - Error saving TA classes:", chrome.runtime.lastError.message);
+        return reject(chrome.runtime.lastError);
+      }
+      console.log("Content Script - TA classes saved successfully.");
+      resolve();
+    });
+  });
+}
+
+function generateTrulyUniqueIdentifier() {
+  return `id-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+}
+// --- End Storage and Utility Functions ---
+
 /**
  * Parses the day/time string and room string to create schedule items.
  * @param {string} dayTimeString - Raw string like "ศ. 09:00-11:00 น.(ท)<br><font color="#FF6600">ศ. 11:00-13:00 น.(ป)</font>"
@@ -259,3 +292,252 @@ console.log("KMITL Schedule Enhancer: Content script listener set up.");
 //   Content script logs are usually prefixed (e.g., "Content Script: ...").
 //
 // ----------------------------------------------------
+
+function renderTaClassesOnPage(taClassesArray) {
+  const existingContainer = document.getElementById('custom-ta-classes-container');
+  if (existingContainer) {
+    existingContainer.innerHTML = ''; // Clear previous TA classes if re-rendering
+  }
+
+  let taContainer = existingContainer;
+  if (!taContainer) {
+    taContainer = document.createElement('div');
+    taContainer.id = 'custom-ta-classes-container';
+    // Basic styling - can be enhanced via page_theme.css or specific CSS rules here
+    taContainer.style.marginTop = '20px';
+    taContainer.style.padding = '15px';
+    taContainer.style.border = '1px solid #ddd';
+    taContainer.style.borderRadius = '8px';
+    taContainer.style.backgroundColor = '#f9f9f9';
+    taContainer.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
+
+
+    // Try to insert it after the main schedule table, or fallback to end of body
+    // Adjusted selector to be more robust based on previous table identification logic
+    let mainScheduleTable;
+    const tablesByWidth = document.querySelectorAll('table[width="1258"]');
+    if (tablesByWidth.length === 1) mainScheduleTable = tablesByWidth[0];
+    else if (tablesByWidth.length > 1) mainScheduleTable = tablesByWidth[1];
+
+    if (!mainScheduleTable) { // Fallback if width="1258" not found
+        const allTables = document.querySelectorAll('table');
+        const headerKeywords = ["รหัสวิชา", "ชื่อวิชา", "หน่วยกิต", "วัน-เวลาเรียน"];
+        for (let table of allTables) {
+            const firstFewRows = Array.from(table.getElementsByTagName('tr')).slice(0, 5);
+            let found = false;
+            for (let row of firstFewRows) {
+                const rowText = row.innerText || "";
+                let matchedKeywords = 0;
+                headerKeywords.forEach(kw => { if (rowText.includes(kw)) matchedKeywords++; });
+                if (matchedKeywords >=3) { mainScheduleTable = table; found = true; break; }
+            }
+            if (found) break;
+        }
+    }
+
+    const referenceNode = mainScheduleTable || document.querySelector('center'); // Fallback further to center tag or body
+    if (referenceNode && referenceNode.parentNode) {
+      // Insert after the identified table or center tag that usually wraps the schedule
+      referenceNode.parentNode.insertBefore(taContainer, referenceNode.nextSibling);
+    } else {
+      document.body.appendChild(taContainer); // Absolute fallback
+    }
+  }
+
+  const title = document.createElement('h3');
+  title.textContent = 'TA Classes (From Extension)';
+  title.style.marginTop = '0';
+  title.style.marginBottom = '10px';
+  title.style.color = '#333';
+  title.style.borderBottom = '1px solid #eee';
+  title.style.paddingBottom = '5px';
+  taContainer.appendChild(title);
+
+
+  if (!taClassesArray || taClassesArray.length === 0) {
+    const p = document.createElement('p');
+    p.textContent = 'No TA classes added yet.';
+    p.style.fontStyle = 'italic';
+    taContainer.appendChild(p);
+    return;
+  }
+
+  const ul = document.createElement('ul');
+  ul.style.listStyleType = 'none';
+  ul.style.padding = '0';
+
+  taClassesArray.forEach(taClass => {
+    const li = document.createElement('li');
+    li.style.border = '1px solid #e0e0e0';
+    li.style.backgroundColor = '#fff';
+    li.style.padding = '10px';
+    li.style.marginBottom = '8px';
+    li.style.borderRadius = '4px';
+    li.innerHTML = `
+      <strong style="color: #007bff;">${taClass.subject || 'N/A Subject'} (TA)</strong><br>
+      Day: ${taClass.day || 'N/A Day'}, Time: ${taClass.time || 'N/A Time'}<br>
+      Room: ${taClass.room || 'N/A'}
+    `;
+    li.dataset.taClassId = taClass.id;
+    ul.appendChild(li);
+  });
+  taContainer.appendChild(ul);
+  console.log("Content Script: Rendered TA classes on page.", taClassesArray);
+}
+
+function injectAddTaButtonAndForm() {
+  // --- Create "Add TA Class" Button ---
+  const addButton = document.createElement('button');
+  addButton.id = 'inpage-add-ta-button';
+  addButton.textContent = 'Add New TA Class';
+  // Basic styling, will be refined in page_theme.css
+  addButton.style.position = 'fixed';
+  addButton.style.bottom = '20px';
+  addButton.style.right = '20px';
+  addButton.style.padding = '10px 15px';
+  addButton.style.zIndex = '10000'; // Ensure it's on top
+
+  // --- Create "Add TA Class" Form (initially hidden) ---
+  const formContainer = document.createElement('div');
+  formContainer.id = 'inpage-ta-form-container';
+  formContainer.style.display = 'none'; // Hidden by default
+  formContainer.style.position = 'fixed';
+  formContainer.style.top = '50%';
+  formContainer.style.left = '50%';
+  formContainer.style.transform = 'translate(-50%, -50%)';
+  formContainer.style.padding = '20px';
+  formContainer.style.border = '1px solid #ccc';
+  formContainer.style.backgroundColor = 'white';
+  formContainer.style.zIndex = '10001';
+  formContainer.style.boxShadow = '0 4px 15px rgba(0,0,0,0.2)';
+
+  formContainer.innerHTML = `
+    <h3>Add / Edit TA Class (In-Page)</h3>
+    <div>
+      <label for="inpage-ta-subject">Subject:</label>
+      <input type="text" id="inpage-ta-subject" name="subject" required>
+    </div>
+    <div>
+      <label for="inpage-ta-day">Day:</label>
+      <select id="inpage-ta-day" name="day">
+        <option value="Mon">Monday</option>
+        <option value="Tue">Tuesday</option>
+        <option value="Wed">Wednesday</option>
+        <option value="Thu">Thursday</option>
+        <option value="Fri">Friday</option>
+        <option value="Sat">Saturday</option>
+        <option value="Sun">Sunday</option>
+      </select>
+    </div>
+    <div>
+      <label for="inpage-ta-time">Time (e.g., HH:MM-HH:MM):</label>
+      <input type="text" id="inpage-ta-time" name="time" required placeholder="09:00-12:00">
+    </div>
+    <div>
+      <label for="inpage-ta-room">Room:</label>
+      <input type="text" id="inpage-ta-room" name="room">
+    </div>
+    <button type="button" id="inpage-ta-save-button">Save TA Class</button>
+    <button type="button" id="inpage-ta-cancel-button" style="margin-left: 10px;">Cancel</button>
+  `;
+
+  // Append button and form to the body
+  document.body.appendChild(addButton);
+  document.body.appendChild(formContainer);
+
+  // --- Event Listener for Add Button ---
+  addButton.addEventListener('click', () => {
+    formContainer.style.display = 'block';
+    // Potentially clear form or pre-fill for editing later
+    document.getElementById('inpage-ta-subject').value = '';
+    document.getElementById('inpage-ta-day').value = 'Mon';
+    document.getElementById('inpage-ta-time').value = '';
+    document.getElementById('inpage-ta-room').value = '';
+    // Reset form title for adding
+    formContainer.querySelector('h3').textContent = 'Add New TA Class (In-Page)';
+  });
+
+  // --- Event Listener for Cancel Button on Form ---
+  const cancelButton = formContainer.querySelector('#inpage-ta-cancel-button');
+  cancelButton.addEventListener('click', () => {
+    formContainer.style.display = 'none';
+  });
+
+  // --- Event Listener for Save Button on Form ---
+  const saveButton = formContainer.querySelector('#inpage-ta-save-button');
+  saveButton.addEventListener('click', async () => {
+    const subject = document.getElementById('inpage-ta-subject').value.trim();
+    const day = document.getElementById('inpage-ta-day').value;
+    const time = document.getElementById('inpage-ta-time').value.trim();
+    const room = document.getElementById('inpage-ta-room').value.trim();
+
+    if (!subject || !day || !time) {
+      alert("Please fill in Subject, Day, and Time for the TA class.");
+      return;
+    }
+
+    // Validate time format (basic)
+    if (!/^\d{2}:\d{2}-\d{2}:\d{2}$/.test(time)) {
+        alert("Invalid Time format. Please use HH:MM-HH:MM (e.g., 09:00-12:00).");
+        return;
+    }
+
+    const newTaClass = {
+      id: generateTrulyUniqueIdentifier(), // Assumes this function is available
+      subject: subject,
+      day: day,
+      time: time,
+      room: room,
+      type: 'TA' // Important to mark as TA type
+    };
+
+    try {
+      let currentTaClasses = await fetchTaClassesFromStorage(); // Assumes this function is available
+      currentTaClasses.push(newTaClass);
+      await saveTaClassesToStorage(currentTaClasses); // Assumes this function is available
+
+      renderTaClassesOnPage(currentTaClasses);
+
+      // Clear form and hide
+      document.getElementById('inpage-ta-subject').value = '';
+      document.getElementById('inpage-ta-day').value = 'Mon';
+      document.getElementById('inpage-ta-time').value = '';
+      document.getElementById('inpage-ta-room').value = '';
+      formContainer.style.display = 'none';
+
+      console.log("Content Script: New TA class added and saved.", newTaClass);
+      alert("TA Class added successfully!");
+
+    } catch (error) {
+      console.error("Content Script: Error saving TA class:", error);
+      alert("Failed to save TA class. See console for details.");
+    }
+  });
+
+  console.log("Content Script: Injected 'Add TA Class' button and form, with save logic.");
+}
+
+async function initializeExtensionFeatures() {
+  console.log("Content Script: Initializing KMITL Schedule Enhancer features on page load.");
+
+  // The original schedule is assumed to be rendered by the page itself.
+  // This script primarily enhances it or adds new elements like TA classes.
+  // extractScheduleDataFromPage() is available for the popup if it needs to pull data.
+
+  try {
+    const taClasses = await fetchTaClassesFromStorage();
+    renderTaClassesOnPage(taClasses);
+    if (!document.getElementById('inpage-add-ta-button')) { // Inject only if not already present
+        injectAddTaButtonAndForm();
+    }
+  } catch (error) {
+    console.error("Content Script: Error during initial feature setup:", error);
+  }
+}
+
+// Ensure this runs after the DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeExtensionFeatures);
+} else {
+  initializeExtensionFeatures(); // DOM is already ready
+}
