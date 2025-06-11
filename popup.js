@@ -152,7 +152,20 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       let taClasses = await fetchTaClassesFromStorage();
       if (!Array.isArray(taClasses)) { taClasses = []; } // Safety check
-      if (editingTaClassId) { const cI=taClasses.findIndex(i=>i.id===editingTaClassId); if(cI>-1)taClasses[cI]={...taClasses[cI],subject,day,time,room}; const dI=currentScheduleData.findIndex(i=>i.id===editingTaClassId); if(dI>-1)currentScheduleData[dI]={...currentScheduleData[dI],subject,day,time,room}; editingTaClassId=null; addTaButton.textContent="Add TA Class"; }
+      if (editingTaClassId) {
+        let updatedTaItem;
+        const cI=taClasses.findIndex(i=>i.id===editingTaClassId);
+        if(cI>-1) {
+          updatedTaItem = {...taClasses[cI], subject, day, time, room, type: 'TA', id: editingTaClassId };
+          taClasses[cI] = updatedTaItem;
+        }
+        const dI=currentScheduleData.findIndex(i=>i.id===editingTaClassId);
+        if(dI>-1 && updatedTaItem) {
+          currentScheduleData[dI] = updatedTaItem;
+        }
+        editingTaClassId=null;
+        addTaButton.textContent="Add TA Class";
+      }
       else { const nTC={subject,day,time,room,type:'TA',id:ensureItemId({type:'TA'})}; taClasses.push(nTC); currentScheduleData.push(nTC); }
       await chrome.storage.local.set({taClasses:taClasses}); if(chrome.runtime.lastError)throw new Error("Storage set TA: "+chrome.runtime.lastError.message);
       displaySchedule(currentScheduleData); await saveScheduleOrder(); addTaClassForm.reset();
