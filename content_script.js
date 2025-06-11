@@ -70,30 +70,64 @@ function parseDayTimeRoom(dayTimeString, roomString, courseName, courseCode) {
 function extractScheduleDataFromPage() {
   console.log("Content Script: extractScheduleDataFromPage() called.");
   const scheduleItems = [];
+  let scheduleTable = null;
 
-  // Select the second table with width="1258" as it's more likely the main schedule table.
-  const tables = document.querySelectorAll('table[width="1258"]');
-  const scheduleTable = tables.length > 1 ? tables[1] : null;
+  // Primary attempt: Select tables with width="1258"
+  const tablesByWidth = document.querySelectorAll('table[width="1258"]');
+  if (tablesByWidth.length === 1) {
+    scheduleTable = tablesByWidth[0];
+    console.log("Content Script: Primary selector found one table with width='1258'.");
+  } else if (tablesByWidth.length > 1) {
+    scheduleTable = tablesByWidth[1]; // Often the second one is the main data table
+    console.log("Content Script: Primary selector found multiple tables with width='1258', selecting the second one.");
+  }
 
-  if (!scheduleTable) {
-    console.warn("Content Script: Could not find the main schedule table (expected second table with width='1258').");
-    // Attempt to find a table with 'รหัสวิชา' header as a fallback
+  if (scheduleTable) {
+    console.log("Content Script: Successfully identified schedule table using primary selector (width='1258').");
+  } else {
+    console.warn("Content Script: Primary selector (width='1258') failed to find a suitable schedule table. Attempting fallback.");
     const allTables = document.querySelectorAll('table');
-    for (let table of allTables) {
-        if (table.innerText.includes('รหัสวิชา') && table.innerText.includes('ชื่อวิชา')) {
-            console.log("Content Script: Found table by header content as a fallback.");
-            scheduleTable = table;
-            break;
+    const headerKeywords = ["รหัสวิชา", "ชื่อวิชา", "หน่วยกิต", "วัน-เวลาเรียน"];
+
+    for (let i = 0; i < allTables.length; i++) {
+      const currentTable = allTables[i];
+      const firstFewRows = Array.from(currentTable.getElementsByTagName('tr')).slice(0, 5); // Check first 5 rows
+      let foundInThisTable = false;
+
+      for (let j = 0; j < firstFewRows.length; j++) {
+        const row = firstFewRows[j];
+        const cells = row.querySelectorAll('td, th');
+        let rowText = "";
+        cells.forEach(cell => {
+          rowText += cell.innerText.trim() + " ";
+        });
+
+        let matchedKeywords = 0;
+        headerKeywords.forEach(keyword => {
+          if (rowText.includes(keyword)) {
+            matchedKeywords++;
+          }
+        });
+
+        // If at least 3 of the 4 keywords are found in a row, consider this the table
+        if (matchedKeywords >= 3) {
+          scheduleTable = currentTable;
+          console.log(`Content Script: Fallback successful. Found schedule table by header content (matched ${matchedKeywords} keywords in row ${j + 1} of table ${i + 1}).`);
+          foundInThisTable = true;
+          break;
         }
+      }
+      if (foundInThisTable) break;
     }
+
     if (!scheduleTable) {
-        console.error("Content Script: Still could not find the schedule table using fallback method.");
-        return [];
+      console.error("Content Script: Both primary and fallback methods failed to identify the schedule table. Cannot extract data.");
+      return [];
     }
   }
 
-  const rows = scheduleTable.querySelectorAll('tbody tr');
-  console.log(`Content Script: Found ${rows.length} rows in the schedule table.`);
+  const rows = scheduleTable.querySelectorAll('tbody tr'); // Prefer querySelectorAll for consistency
+  console.log(`Content Script: Found ${rows.length} rows in the identified schedule table.`);
 
   rows.forEach((row, rowIndex) => {
     // Skip header rows - typical headers contain 'รหัสวิชา', 'ชื่อวิชา', or are very short.
