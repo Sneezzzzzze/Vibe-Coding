@@ -111,7 +111,19 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   };
- const fetchTaClassesFromStorage = async () => { /* ... as before ... */ };
+ const fetchTaClassesFromStorage = async () => {
+    return new Promise((resolve, reject) => {
+      chrome.storage.local.get(['taClasses'], (result) => {
+        if (chrome.runtime.lastError) {
+          console.error("Error fetching TA classes:", chrome.runtime.lastError.message);
+          return reject(chrome.runtime.lastError);
+        }
+        // Ensure result.taClasses is an array, default to empty array if not found or not an array
+        const taClasses = Array.isArray(result.taClasses) ? result.taClasses : [];
+        resolve(taClasses);
+      });
+    });
+  };
 
   // --- Simplified versions of copied async data functions for brevity in this final review block ---
   const saveScheduleOrder = async () => { /* Assume implemented as previously */
@@ -139,6 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!subject || !day || !time) { alert("Fill Subject, Day, and Time."); return; }
     try {
       let taClasses = await fetchTaClassesFromStorage();
+      if (!Array.isArray(taClasses)) { taClasses = []; } // Safety check
       if (editingTaClassId) { const cI=taClasses.findIndex(i=>i.id===editingTaClassId); if(cI>-1)taClasses[cI]={...taClasses[cI],subject,day,time,room}; const dI=currentScheduleData.findIndex(i=>i.id===editingTaClassId); if(dI>-1)currentScheduleData[dI]={...currentScheduleData[dI],subject,day,time,room}; editingTaClassId=null; addTaButton.textContent="Add TA Class"; }
       else { const nTC={subject,day,time,room,type:'TA',id:ensureItemId({type:'TA'})}; taClasses.push(nTC); currentScheduleData.push(nTC); }
       await chrome.storage.local.set({taClasses:taClasses}); if(chrome.runtime.lastError)throw new Error("Storage set TA: "+chrome.runtime.lastError.message);
