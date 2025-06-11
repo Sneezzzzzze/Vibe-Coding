@@ -1,306 +1,328 @@
-@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
 
 /* KMITL Schedule Page Theme - KMITL+ Inspired Styles */
 
 /* Overall Page Styles */
-body {
-  background-color: #f0f2f5 !important; /* Light grey background, common in modern UIs */
+body:not(.kmitl-plus-theme-disabled) {
+  background-color: #f0f2f5 !important;
   font-family: 'Prompt', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
   color: #333 !important;
   line-height: 1.6 !important;
 }
 
-/* Attempt to find the table holding the main page title "ตารางเรียนส่วนบุคคล" and student info */
-/* This selector will need verification against the original KMITL HTML structure */
-/* It assumes the student info is near the top in a specific layout */
-/* This selector targets the "ตารางเรียนส่วนบุคคล" header cell */
-center > table:first-of-type tr > td[background="../images/label_m21.jpg"],
-/* This selector targets the student information cells like Faculty, Department etc. */
-center > table:first-of-type table[border="0"] td[height="18"][bgcolor="#E1E1E1"] {
-  background-image: none !important; /* Remove old background image if any */
+/* Header Info Area (Faculty, Name, etc.) */
+body:not(.kmitl-plus-theme-disabled) center > table:first-of-type tr > td[background="../images/label_m21.jpg"],
+body:not(.kmitl-plus-theme-disabled) center > table:first-of-type table[border="0"] td[height="18"][bgcolor="#E1E1E1"] {
+  background-image: none !important;
   background-color: rgb(249, 115, 22) !important; /* KMITL+ Orange */
   color: white !important;
   text-align: center !important;
-  padding: 8px 6px !important; /* Adjusted padding */
+  padding: 10px 8px !important; /* Increased padding */
   font-weight: 500 !important;
 }
-
-/* Remove extra borders/spacer rows in this header block if they exist */
-center > table:first-of-type table[border="0"] td[height="1"][bgcolor="#E1E1E1"] { /* Likely spacer rows */
-    display: none !important; /* Hide spacer rows */
+body:not(.kmitl-plus-theme-disabled) center > table:first-of-type table[border="0"] td[height="1"][bgcolor="#E1E1E1"] {
+    display: none !important;
 }
-
-/* Ensure text within these cells is styled correctly */
-center > table:first-of-type table[border="0"] td[height="18"][bgcolor="#E1E1E1"] strong,
-center > table:first-of-type table[border="0"] td[height="18"][bgcolor="#E1E1E1"] font[color="black"] { /* Target specific font tags if used */
-    color: white !important; /* Make <strong> and specific font text white */
-    font-weight: 500 !important;
+body:not(.kmitl-plus-theme-disabled) center > table:first-of-type table[border="0"] td[height="18"][bgcolor="#E1E1E1"] strong,
+body:not(.kmitl-plus-theme-disabled) center > table:first-of-type table[border="0"] td[height="18"][bgcolor="#E1E1E1"] font[color="black"] {
+    color: white !important;
+    font-weight: 600 !important; /* Slightly bolder for emphasis */
 }
-center > table:first-of-type table[border="0"] td[height="18"][bgcolor="#E1E1E1"] p { /* If <p> tags are used inside */
+body:not(.kmitl-plus-theme-disabled) center > table:first-of-type table[border="0"] td[height="18"][bgcolor="#E1E1E1"] p {
     margin: 2px 0 !important;
     padding: 0 !important;
-    color: white !important; /* Ensure p tag text is also white */
+    color: white !important;
 }
 
-
-/* Styles for the main schedule table container */
-/* This selector should match what content_script.js uses to identify the schedule table */
-table[width="1258"] {
+/* Main Schedule Table */
+body:not(.kmitl-plus-theme-disabled) table[width="1258"] {
   background-color: #ffffff !important;
-  border-radius: 8px !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
-  margin: 25px auto !important; /* Center it and add some margin */
-  border-collapse: separate !important; /* Needed for border-radius on table */
+  border-radius: 10px !important; /* Slightly more rounded */
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.07) !important; /* Softer, deeper shadow */
+  margin: 30px auto !important; /* Increased margin */
+  border-collapse: separate !important;
   border-spacing: 0 !important;
-  overflow: hidden !important; /* To make border-radius clip inner content */
-  font-size: 0.9em !important; /* Slightly smaller base font for the table */
+  overflow: hidden !important;
+  font-size: 0.92em !important; /* Base font size for table */
 }
-
-/* Clean up schedule table headers */
-/* Assuming first row of tbody is header, or specific td bgcolor */
-table[width="1258"] > tbody > tr:first-child td[bgcolor="#E1E1E1"],
-table[width="1258"] > tbody > tr > td[class="LabelFieldName"] /* Another common way headers are defined */
- {
-    background-color: #f8f9fa !important; /* Light grey for headers, distinct from data */
-    color: #212529 !important; /* Darker text for header contrast */
+body:not(.kmitl-plus-theme-disabled) table[width="1258"] > tbody > tr:first-child td[bgcolor="#E1E1E1"],
+body:not(.kmitl-plus-theme-disabled) table[width="1258"] > tbody > tr > td[class="LabelFieldName"] {
+    background-color: #f9fafb !important; /* Very light grey */
+    color: #374151 !important; /* Darker grey for header text */
     font-weight: 600 !important;
-    padding: 12px 10px !important; /* More padding for headers */
-    border-bottom: 2px solid #dee2e6 !important;
+    padding: 14px 12px !important; /* Increased padding */
+    border-bottom: 2px solid #e5e7eb !important; /* Slightly darker border */
     text-align: center !important;
 }
-
-/* Clean up schedule table data cells */
-table[width="1258"] td {
-    padding: 10px 10px !important; /* Standardized padding */
-    border: none !important; /* Remove old borders */
-    border-bottom: 1px solid #e9ecef !important; /* Light bottom border for rows */
-    color: #495057 !important; /* Softer text color for data */
+body:not(.kmitl-plus-theme-disabled) table[width="1258"] td {
+    padding: 12px 12px !important; /* Increased padding */
+    border: none !important;
+    border-bottom: 1px solid #f3f4f6 !important; /* Lighter border for data rows */
+    color: #4b5563 !important;
 }
-/* Remove border for the last row's cells */
-table[width="1258"] > tbody > tr:last-child td {
+body:not(.kmitl-plus-theme-disabled) table[width="1258"] > tbody > tr:last-child td {
     border-bottom: none !important;
 }
-/* Hover effect for data rows */
-table[width="1258"] > tbody > tr:not(:first-child):hover td { /* Exclude header row from hover if it's part of tbody */
-  background-color: #f1f3f5 !important; /* Subtle hover for data rows */
+body:not(.kmitl-plus-theme-disabled) table[width="1258"] > tbody > tr:not(:first-child):hover td {
+  background-color: #f9fafb !important;
 }
-
-/* Specific font changes for critical data if needed */
-table[width="1258"] td font[color="#FF6600"], /* Original Lab/Practice items */
-table[width="1258"] td font[color="red"] /* Other highlighted items */
-{
-  color: #dc3545 !important; /* Bootstrap's danger red for distinction */
-  font-weight: 500 !important; /* Slightly bolder for emphasis */
+body:not(.kmitl-plus-theme-disabled) table[width="1258"] td font[color="#FF6600"],
+body:not(.kmitl-plus-theme-disabled) table[width="1258"] td font[color="red"] {
+  color: #ef4444 !important; /* Tailwind red-500 */
+  font-weight: 500 !important;
 }
-table[width="1258"] td font[color="blue"] { /* e.g. Midterm/Final exam text if any */
-    color: #007bff !important; /* Bootstrap's primary blue */
+body:not(.kmitl-plus-theme-disabled) table[width="1258"] td font[color="blue"] {
+    color: #3b82f6 !important; /* Tailwind blue-500 */
     font-weight: 500 !important;
 }
 
-
-/* Links on the page (general) */
-a, a:link, a:visited {
-  color: #007bff !important; /* KMITL+ like blue for links */
+/* General Links */
+body:not(.kmitl-plus-theme-disabled) a,
+body:not(.kmitl-plus-theme-disabled) a:link,
+body:not(.kmitl-plus-theme-disabled) a:visited {
+  color: #007bff !important;
   text-decoration: none !important;
 }
-a:hover {
+body:not(.kmitl-plus-theme-disabled) a:hover {
   color: #0056b3 !important;
   text-decoration: underline !important;
 }
-
-/* Hide any unwanted horizontal rules or specific elements if needed */
-hr {
+body:not(.kmitl-plus-theme-disabled) hr {
     display: none !important;
 }
 
-/* Note: These styles are based on common KMITL schedule page structures and KMITL+ aesthetics.
-   They will likely need fine-tuning once tested on the live page, especially selectors for the header info.
-   The use of !important is to help override existing page styles, but should be used judiciously.
-*/
-
-/* Styling for the TA Classes container injected by content_script.js */
-#custom-ta-classes-container {
-  margin: 20px auto !important; /* Consistent with main table margin */
-  padding: 20px !important; /* Increased padding */
+/* TA Classes Display Container */
+body:not(.kmitl-plus-theme-disabled) #custom-ta-classes-container {
+  margin: 30px auto !important;
+  padding: 25px !important;
   background-color: #ffffff !important;
-  border-radius: 8px !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
-  max-width: 1258px; /* Optional: align with table width if the table itself doesn't span 100% of this */
-  font-size: 0.95em !important; /* Slightly larger font for TA section */
+  border-radius: 10px !important;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.07) !important;
+  max-width: 1258px;
+  font-size: 0.95em !important;
 }
-
-#custom-ta-classes-container h3 { /* Title like "TA Classes (From Extension)" */
-  color: rgb(249, 115, 22) !important; /* KMITL+ Orange for title */
-  border-bottom: 2px solid #f0f2f5 !important; /* Lighter border to match new body bg */
-  padding-bottom: 12px !important;
+body:not(.kmitl-plus-theme-disabled) #custom-ta-classes-container h3 {
+  color: rgb(249, 115, 22) !important;
+  border-bottom: 2px solid #f3f4f6 !important;
+  padding-bottom: 15px !important;
   margin-top: 0 !important;
-  margin-bottom: 18px !important;
-  font-size: 1.3em !important; /* Adjusted for better hierarchy */
+  margin-bottom: 20px !important;
+  font-size: 1.4em !important;
   font-weight: 600 !important;
 }
-
-#custom-ta-classes-container p { /* For "No TA classes" message or other general text */
-    color: #6c757d !important; /* Bootstrap secondary text color */
+body:not(.kmitl-plus-theme-disabled) #custom-ta-classes-container p {
+    color: #6b7280 !important; /* Tailwind gray-500 */
     font-style: italic !important;
-    margin-top: 5px; /* Ensure some space if it's the only child */
+    margin-top: 5px;
 }
-
-#custom-ta-classes-container ul {
+body:not(.kmitl-plus-theme-disabled) #custom-ta-classes-container ul {
   list-style-type: none !important;
   padding: 0 !important;
   margin: 0 !important;
 }
-
-#custom-ta-classes-container ul li {
-  background-color: #fdfdfe !important; /* Very light off-white, slightly different from container */
-  border: 1px solid #e9ecef !important; /* Softer border */
-  border-radius: 6px !important;
-  padding: 12px 15px !important;
-  margin-bottom: 10px !important;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important; /* Softer shadow */
+body:not(.kmitl-plus-theme-disabled) #custom-ta-classes-container ul li {
+  background-color: #eef4f8 !important; /* Light blue/off-white for card feel */
+  border: 1px solid #e5e7eb !important;
+  border-radius: 8px !important; /* More rounded */
+  padding: 15px 18px !important; /* Increased padding */
+  margin-bottom: 12px !important;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05) !important;
   transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
-  line-height: 1.5; /* Specific line height for list items */
+  line-height: 1.5;
 }
-
-#custom-ta-classes-container ul li:hover {
-  box-shadow: 0 3px 7px rgba(0,0,0,0.08) !important; /* Slightly more pronounced hover shadow */
-  transform: translateY(-1px); /* Subtle lift effect */
+body:not(.kmitl-plus-theme-disabled) #custom-ta-classes-container ul li:hover {
+  box-shadow: 0 5px 10px rgba(0,0,0,0.1) !important;
+  transform: translateY(-2px);
 }
-
-#custom-ta-classes-container ul li strong {
-  color: #0069d9 !important; /* Darker KMITL Blue for TA subject */
-  font-size: 1.05em !important; /* Slightly smaller than h3, but distinct */
-  font-weight: 500 !important; /* Medium weight for TA subject */
+body:not(.kmitl-plus-theme-disabled) #custom-ta-classes-container ul li strong {
+  color: #1e40af !important; /* Darker KMITL Blue - Tailwind blue-800 */
+  font-size: 1.1em !important;
+  font-weight: 600 !important; /* Bolder for TA subject */
   display: block;
-  margin-bottom: 5px;
+  margin-bottom: 6px; /* More space */
+}
+body:not(.kmitl-plus-theme-disabled) #custom-ta-classes-container ul li,
+body:not(.kmitl-plus-theme-disabled) #custom-ta-classes-container ul li span,
+body:not(.kmitl-plus-theme-disabled) #custom-ta-classes-container ul li div:not(.ta-item-controls) { /* Exclude controls div from this rule */
+    font-size: 0.92rem !important;
+    color: #374151 !important; /* Tailwind gray-700 */
+}
+body:not(.kmitl-plus-theme-disabled) #custom-ta-classes-container ul li strong { /* Re-apply for specificity */
+    font-size: 1.1em !important;
+    color: #1e40af !important;
+    font-weight: 600 !important;
 }
 
-/* Ensure text within TA class items is not overly bold or large from general table rules */
-#custom-ta-classes-container ul li,
-#custom-ta-classes-container ul li span, /* If spans are used inside the innerHTML */
-#custom-ta-classes-container ul li div { /* If divs are used inside the innerHTML */
-    font-size: 0.9rem !important; /* Reset font size for content within LI if needed */
-    color: #495057 !important; /* Consistent text color */
-}
-
-#custom-ta-classes-container ul li strong { /* Re-apply strong specific style */
-    font-size: 1.05em !important;
-    color: #0069d9 !important;
-    font-weight: 500 !important;
-}
-
-/* Styles for In-Page TA Form and Button */
-#inpage-add-ta-button {
-  background-color: rgb(249, 115, 22) !important; /* KMITL+ Orange */
+/* Floating Action Buttons (FABs) */
+body:not(.kmitl-plus-theme-disabled) #inpage-add-ta-button,
+body:not(.kmitl-plus-theme-disabled) #kmitl-theme-toggle-button {
   color: white !important;
   border: none !important;
-  border-radius: 30px !important; /* More rounded */
-  padding: 12px 20px !important; /* Adjusted padding */
-  font-size: 1em !important; /* Standardized font size */
+  border-radius: 28px !important; /* Pill shape */
+  padding: 14px 22px !important; /* Adjusted padding */
+  font-size: 0.95em !important;
   font-weight: 600 !important;
-  font-family: 'Prompt', sans-serif !important; /* Ensure font consistency */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important; /* Slightly stronger shadow */
+  font-family: 'Prompt', sans-serif !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25) !important;
   cursor: pointer !important;
   transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease !important;
   position: fixed !important;
-  bottom: 25px !important; /* Adjusted position */
   right: 25px !important;
   z-index: 10000 !important;
+  text-align: center !important;
+}
+body:not(.kmitl-plus-theme-disabled) #inpage-add-ta-button {
+  background-color: rgb(249, 115, 22) !important; /* KMITL+ Orange */
+  bottom: 25px !important;
+}
+body:not(.kmitl-plus-theme-disabled) #kmitl-theme-toggle-button {
+  background-color: #64748b !important; /* Tailwind slate-500 for secondary FAB */
+  bottom: 85px !important; /* Positioned above the Add TA button */
+  font-size: 0.9em !important; /* Slightly smaller text for secondary FAB */
+  padding: 12px 20px !important;
 }
 
-#inpage-add-ta-button:hover {
-  background-color: rgb(230, 100, 0) !important; /* Darker orange */
+body:not(.kmitl-plus-theme-disabled) #inpage-add-ta-button:hover,
+body:not(.kmitl-plus-theme-disabled) #kmitl-theme-toggle-button:hover {
   transform: translateY(-2px) !important;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3) !important; /* Enhanced shadow on hover */
+  box-shadow: 0 7px 18px rgba(0, 0, 0, 0.3) !important;
+}
+body:not(.kmitl-plus-theme-disabled) #inpage-add-ta-button:hover {
+  background-color: rgb(230, 100, 0) !important;
+}
+body:not(.kmitl-plus-theme-disabled) #kmitl-theme-toggle-button:hover {
+  background-color: #475569 !important; /* Tailwind slate-600 */
 }
 
-#inpage-ta-form-container {
+/* In-Page TA Form Container */
+body:not(.kmitl-plus-theme-disabled) #inpage-ta-form-container {
   background-color: #ffffff !important;
-  border-radius: 10px !important; /* Slightly more rounded */
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2) !important; /* Softer, larger shadow for modal */
-  padding: 25px 30px !important;
-  width: 420px !important;
-  max-width: 90vw !important;
+  border-radius: 12px !important; /* More rounded */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important; /* Softer, more diffused shadow */
+  padding: 30px 35px !important; /* Increased padding */
+  width: 450px !important;
+  max-width: 95vw !important;
   border: none !important;
   z-index: 10001 !important;
-  /* JS handles position:fixed, top/left/transform for centering */
 }
-
-#inpage-ta-form-container h3 {
-  color: rgb(249, 115, 22) !important; /* KMITL+ Orange */
-  font-size: 1.6em !important; /* Larger title */
+body:not(.kmitl-plus-theme-disabled) #inpage-ta-form-container h3 {
+  color: rgb(249, 115, 22) !important;
+  font-size: 1.75em !important; /* Larger title */
   font-weight: 600 !important;
   margin-top: 0 !important;
-  margin-bottom: 25px !important; /* More space below title */
+  margin-bottom: 30px !important;
   text-align: center;
-  border-bottom: 1px solid #dee2e6 !important; /* Subtler border */
-  padding-bottom: 15px;
+  border-bottom: 1px solid #e5e7eb !important;
+  padding-bottom: 20px;
 }
-
-#inpage-ta-form-container div { /* Applies to each form group */
-  margin-bottom: 18px !important; /* Consistent spacing */
+body:not(.kmitl-plus-theme-disabled) #inpage-ta-form-container div {
+  margin-bottom: 20px !important;
 }
-
-#inpage-ta-form-container label {
+body:not(.kmitl-plus-theme-disabled) #inpage-ta-form-container label {
   display: block !important;
-  margin-bottom: 8px !important; /* More space after label */
+  margin-bottom: 8px !important;
   font-weight: 500 !important;
-  color: #495057 !important; /* Slightly darker text for labels */
-  font-size: 0.9em !important;
+  color: #4b5563 !important; /* Tailwind gray-600 */
+  font-size: 0.92em !important;
 }
-
-#inpage-ta-form-container input[type="text"],
-#inpage-ta-form-container select {
+body:not(.kmitl-plus-theme-disabled) #inpage-ta-form-container input[type="text"],
+body:not(.kmitl-plus-theme-disabled) #inpage-ta-form-container select {
   width: 100% !important;
-  padding: 10px 14px !important; /* Slightly more padding */
-  border: 1px solid #ced4da !important; /* Standard Bootstrap border color */
-  border-radius: 5px !important;
+  padding: 12px 15px !important;
+  border: 1px solid #d1d5db !important; /* Tailwind gray-300 */
+  border-radius: 6px !important; /* More rounded inputs */
   box-sizing: border-box !important;
   font-family: 'Prompt', sans-serif !important;
-  font-size: 0.95em !important; /* Slightly smaller font in inputs */
+  font-size: 1em !important;
   transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
-  background-color: #f8f9fa !important; /* Light bg for inputs */
+  background-color: #f9fafb !important; /* Tailwind gray-50 */
 }
-
-#inpage-ta-form-container input[type="text"]:focus,
-#inpage-ta-form-container select:focus {
-  border-color: rgb(249, 115, 22) !important; /* Orange focus */
-  box-shadow: 0 0 0 0.2rem rgba(249, 115, 22, 0.25) !important; /* Bootstrap-like focus shadow */
+body:not(.kmitl-plus-theme-disabled) #inpage-ta-form-container input[type="text"]:focus,
+body:not(.kmitl-plus-theme-disabled) #inpage-ta-form-container select:focus {
+  border-color: rgb(251, 146, 60) !important; /* Lighter KMITL+ Orange for focus - Tailwind orange-400 */
+  box-shadow: 0 0 0 0.2rem rgba(251, 146, 60, 0.25) !important;
   outline: none !important;
-  background-color: #fff !important; /* White bg on focus */
+  background-color: #fff !important;
 }
 
-#inpage-ta-form-container button {
-  padding: 10px 20px !important; /* More horizontal padding for buttons */
+/* Form Buttons Base Style */
+body:not(.kmitl-plus-theme-disabled) #inpage-ta-form-container button {
+  padding: 12px 22px !important; /* Larger padding */
   border: none !important;
-  border-radius: 5px !important;
+  border-radius: 6px !important; /* Consistent rounding */
   font-weight: 600 !important;
   cursor: pointer !important;
   font-size: 1em !important;
   font-family: 'Prompt', sans-serif !important;
   transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease !important;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15) !important;
 }
-
-#inpage-ta-form-container #inpage-ta-save-button {
-  background-color: rgb(249, 115, 22) !important; /* KMITL+ Orange */
+body:not(.kmitl-plus-theme-disabled) #inpage-ta-form-container button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
+}
+body:not(.kmitl-plus-theme-disabled) #inpage-ta-form-container #inpage-ta-save-button {
+  background-color: rgb(249, 115, 22) !important;
   color: white !important;
 }
-
-#inpage-ta-form-container #inpage-ta-save-button:hover {
-  background-color: rgb(230, 100, 0) !important; /* Darker orange */
-  transform: translateY(-1px) !important;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
+body:not(.kmitl-plus-theme-disabled) #inpage-ta-form-container #inpage-ta-save-button:hover {
+  background-color: rgb(234, 88, 12) !important; /* Darker KMITL+ Orange - Tailwind orange-600 */
 }
-
-#inpage-ta-form-container #inpage-ta-cancel-button {
-  background-color: #6c757d !important; /* Gray - Bootstrap secondary */
+body:not(.kmitl-plus-theme-disabled) #inpage-ta-form-container #inpage-ta-cancel-button {
+  background-color: #6b7280 !important; /* Tailwind gray-500 */
   color: white !important;
-  margin-left: 10px !important;
+  margin-left: 12px !important; /* More space */
+}
+body:not(.kmitl-plus-theme-disabled) #inpage-ta-form-container #inpage-ta-cancel-button:hover {
+  background-color: #4b5563 !important; /* Tailwind gray-600 */
 }
 
-#inpage-ta-form-container #inpage-ta-cancel-button:hover {
-  background-color: #5a6268 !important; /* Darker Gray */
-  transform: translateY(-1px) !important;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
+/* In-Page TA Item Controls (Edit/Delete Buttons) */
+body:not(.kmitl-plus-theme-disabled) #custom-ta-classes-container ul li .ta-item-controls {
+  margin-top: 12px !important;
+  display: flex !important;
+  gap: 10px !important;
+  justify-content: flex-end !important;
+  border-top: 1px solid #e5e7eb !important; /* Tailwind gray-200 */
+  padding-top: 12px !important;
+}
+body:not(.kmitl-plus-theme-disabled) #custom-ta-classes-container ul li .ta-item-controls button {
+  padding: 6px 12px !important; /* Slightly larger */
+  font-size: 0.9em !important;
+  border-radius: 5px !important; /* Consistent rounding */
+  cursor: pointer !important;
+  border: 1px solid transparent !important;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease !important;
+  font-family: 'Prompt', sans-serif !important;
+  font-weight: 500 !important;
+}
+body:not(.kmitl-plus-theme-disabled) #custom-ta-classes-container ul li .ta-item-controls button:hover {
+    transform: translateY(-1px);
+}
+body:not(.kmitl-plus-theme-disabled) #custom-ta-classes-container ul li .ta-edit-btn {
+  background-color: #f59e0b !important; /* Tailwind amber-500 */
+  color: white !important;
+  border-color: #f59e0b !important;
+}
+body:not(.kmitl-plus-theme-disabled) #custom-ta-classes-container ul li .ta-edit-btn:hover {
+  background-color: #d97706 !important; /* Tailwind amber-600 */
+  border-color: #b45309 !important; /* Tailwind amber-700 */
+}
+body:not(.kmitl-plus-theme-disabled) #custom-ta-classes-container ul li .ta-delete-btn {
+  background-color: #ef4444 !important; /* Tailwind red-500 */
+  color: white !important;
+  border-color: #ef4444 !important;
+}
+body:not(.kmitl-plus-theme-disabled) #custom-ta-classes-container ul li .ta-delete-btn:hover {
+  background-color: #dc2626 !important; /* Tailwind red-600 */
+  border-color: #b91c1c !important; /* Tailwind red-700 */
+}
+
+/* Theme Toggle Button Specifics (already has base FAB style) */
+body:not(.kmitl-plus-theme-disabled) #kmitl-theme-toggle-button {
+    /* Base styles are now shared with #inpage-add-ta-button */
+    /* Specific overrides if any can go here, like font-size if it must be different */
+}
+body:not(.kmitl-plus-theme-disabled) #kmitl-theme-toggle-button:hover {
+    /* Base hover styles are shared */
 }

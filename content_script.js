@@ -8,6 +8,11 @@
 
 console.log("KMITL Schedule Enhancer: Content script injected and attempting to run.");
 
+const THEME_ENABLED_STORAGE_KEY = 'kmitlPlusThemeEnabled';
+const THEME_DISABLED_BODY_CLASS = 'kmitl-plus-theme-disabled';
+
+let currentEditingTaId = null;
+
 // --- Storage and Utility Functions ---
 async function fetchTaClassesFromStorage() { // Changed to async function for direct use with await
   return new Promise((resolve, reject) => {
@@ -373,11 +378,34 @@ function renderTaClassesOnPage(taClassesArray) {
     li.style.padding = '10px';
     li.style.marginBottom = '8px';
     li.style.borderRadius = '4px';
-    li.innerHTML = `
+
+    // Content Div for TA class details
+    const contentDiv = document.createElement('div');
+    contentDiv.innerHTML = `
       <strong style="color: #007bff;">${taClass.subject || 'N/A Subject'} (TA)</strong><br>
       Day: ${taClass.day || 'N/A Day'}, Time: ${taClass.time || 'N/A Time'}<br>
       Room: ${taClass.room || 'N/A'}
     `;
+    li.appendChild(contentDiv);
+
+    // Controls Div for buttons
+    const controlsDiv = document.createElement('div');
+    controlsDiv.className = 'ta-item-controls'; // For styling
+
+    const editButton = document.createElement('button');
+    editButton.className = 'ta-edit-btn';
+    editButton.textContent = 'Edit';
+    editButton.dataset.id = taClass.id;
+
+    const deleteButton = document.createElement('button');
+    deleteButton.className = 'ta-delete-btn';
+    deleteButton.textContent = 'Delete';
+    deleteButton.dataset.id = taClass.id;
+
+    controlsDiv.appendChild(editButton);
+    controlsDiv.appendChild(deleteButton);
+    li.appendChild(controlsDiv);
+
     li.dataset.taClassId = taClass.id;
     ul.appendChild(li);
   });
@@ -447,14 +475,17 @@ function injectAddTaButtonAndForm() {
 
   // --- Event Listener for Add Button ---
   addButton.addEventListener('click', () => {
-    formContainer.style.display = 'block';
-    // Potentially clear form or pre-fill for editing later
-    document.getElementById('inpage-ta-subject').value = '';
-    document.getElementById('inpage-ta-day').value = 'Mon';
-    document.getElementById('inpage-ta-time').value = '';
-    document.getElementById('inpage-ta-room').value = '';
-    // Reset form title for adding
-    formContainer.querySelector('h3').textContent = 'Add New TA Class (In-Page)';
+    currentEditingTaId = null; // Ensure we are in "add" mode
+    const formContainer = document.getElementById('inpage-ta-form-container');
+    if (formContainer) {
+        formContainer.style.display = 'block';
+        document.getElementById('inpage-ta-subject').value = '';
+        document.getElementById('inpage-ta-day').value = 'Mon'; // Default
+        document.getElementById('inpage-ta-time').value = '';
+        document.getElementById('inpage-ta-room').value = '';
+        formContainer.querySelector('h3').textContent = 'Add New TA Class'; // Title for Add
+        formContainer.querySelector('#inpage-ta-save-button').textContent = 'Save TA Class'; // Button text for Add
+    }
   });
 
   // --- Event Listener for Cancel Button on Form ---
@@ -476,59 +507,250 @@ function injectAddTaButtonAndForm() {
       return;
     }
 
-    // Validate time format (basic)
+    // Basic time format validation (example: HH:MM-HH:MM)
     if (!/^\d{2}:\d{2}-\d{2}:\d{2}$/.test(time)) {
-        alert("Invalid Time format. Please use HH:MM-HH:MM (e.g., 09:00-12:00).");
-        return;
+      alert("Invalid time format. Please use HH:MM-HH:MM (e.g., 09:00-12:00).");
+      return;
     }
 
-    const newTaClass = {
-      id: generateTrulyUniqueIdentifier(), // Assumes this function is available
-      subject: subject,
-      day: day,
-      time: time,
-      room: room,
-      type: 'TA' // Important to mark as TA type
-    };
-
     try {
-      let currentTaClasses = await fetchTaClassesFromStorage(); // Assumes this function is available
-      currentTaClasses.push(newTaClass);
-      await saveTaClassesToStorage(currentTaClasses); // Assumes this function is available
+      let currentTaClasses = await fetchTaClassesFromStorage();
 
-      renderTaClassesOnPage(currentTaClasses);
+      if (currentEditingTaId) {
+        // ---- EDIT MODE ----
+        const itemIndex = currentTaClasses.findIndex(ta => ta.id === currentEditingTaId);
+        if (itemIndex > -1) {
+          currentTaClasses[itemIndex] = {
+            ...currentTaClasses[itemIndex], // Preserve other potential properties
+            id: currentEditingTaId, // Ensure ID is maintained
+            subject: subject,
+            day: day,
+            time: time,
+            room: room,
+            type: 'TA' // Ensure type is maintained
+          };
+          await saveTaClassesToStorage(currentTaClasses);
+          renderTaClassesOnPage(currentTaClasses); // Re-render all TA classes
+          alert("TA Class updated successfully!");
+          console.log("Content Script: TA class updated and saved.", currentTaClasses[itemIndex]);
+        } else {
+          alert("Error: TA class to update not found. It might have been deleted.");
+          console.error("Content Script: TA class to update not found for ID:", currentEditingTaId);
+        }
+        currentEditingTaId = null; // Reset editing ID
+      } else {
+        // ---- ADD MODE ----
+        const newTaClass = {
+          id: generateTrulyUniqueIdentifier(),
+          subject: subject,
+          day: day,
+          time: time,
+          room: room,
+          type: 'TA'
+        };
+        currentTaClasses.push(newTaClass);
+        await saveTaClassesToStorage(currentTaClasses);
+        renderTaClassesOnPage(currentTaClasses); // Re-render all TA classes
+        alert("TA Class added successfully!");
+        console.log("Content Script: New TA class added and saved.", newTaClass);
+      }
 
-      // Clear form and hide
+      // Clear form, hide, and reset button texts (common for both modes)
       document.getElementById('inpage-ta-subject').value = '';
-      document.getElementById('inpage-ta-day').value = 'Mon';
+      document.getElementById('inpage-ta-day').value = 'Mon'; // Default
       document.getElementById('inpage-ta-time').value = '';
       document.getElementById('inpage-ta-room').value = '';
-      formContainer.style.display = 'none';
-
-      console.log("Content Script: New TA class added and saved.", newTaClass);
-      alert("TA Class added successfully!");
+      document.getElementById('inpage-ta-form-container').style.display = 'none';
+      // Reset form title and button text for the next "Add" operation is handled by the "Add New TA Class" button's click listener.
 
     } catch (error) {
-      console.error("Content Script: Error saving TA class:", error);
+      console.error("Content Script: Error saving TA class (add/edit):", error);
       alert("Failed to save TA class. See console for details.");
+      if (currentEditingTaId) currentEditingTaId = null; // Reset on error too
     }
   });
 
   console.log("Content Script: Injected 'Add TA Class' button and form, with save logic.");
 }
 
+function setupTaItemActionListeners() {
+  const taContainer = document.getElementById('custom-ta-classes-container');
+  if (taContainer && !taContainer.dataset.listenersAttached) { // Check if listeners are already attached
+    taContainer.addEventListener('click', async (event) => {
+      if (event.target.classList.contains('ta-edit-btn')) {
+        const taId = event.target.dataset.id;
+        if (!taId) return;
+
+        currentEditingTaId = taId; // Set the ID of the item being edited
+
+        try {
+          const taClasses = await fetchTaClassesFromStorage();
+          const taToEdit = taClasses.find(ta => ta.id === taId);
+
+          if (taToEdit) {
+            // Populate the form
+            document.getElementById('inpage-ta-subject').value = taToEdit.subject;
+            document.getElementById('inpage-ta-day').value = taToEdit.day;
+            document.getElementById('inpage-ta-time').value = taToEdit.time;
+            document.getElementById('inpage-ta-room').value = taToEdit.room || '';
+
+            // Change form title and save button text
+            const formContainer = document.getElementById('inpage-ta-form-container');
+            if (formContainer) {
+              formContainer.querySelector('h3').textContent = 'Edit TA Class';
+              formContainer.querySelector('#inpage-ta-save-button').textContent = 'Update TA Class';
+              formContainer.style.display = 'block';
+            }
+          } else {
+            console.error("Content Script: TA class to edit not found in storage.", taId);
+            currentEditingTaId = null; // Reset if not found
+            alert("Error: Could not find the TA class to edit.");
+          }
+        } catch (error) {
+          console.error("Content Script: Error preparing edit for TA class:", error);
+          currentEditingTaId = null;
+          alert("Error preparing edit. See console.");
+        }
+      }
+      else if (event.target.classList.contains('ta-delete-btn')) {
+        const taId = event.target.dataset.id;
+        if (!taId) return;
+
+        if (window.confirm("Are you sure you want to delete this TA class?")) {
+          try {
+            let currentTaClasses = await fetchTaClassesFromStorage();
+            const initialLength = currentTaClasses.length;
+            currentTaClasses = currentTaClasses.filter(ta => ta.id !== taId);
+
+            if (currentTaClasses.length < initialLength) { // Item was actually found and filtered
+              await saveTaClassesToStorage(currentTaClasses);
+
+              // Remove the item directly from the DOM for immediate feedback
+              const itemElementToRemove = event.target.closest('li'); // Assuming TA items are <li>
+              if (itemElementToRemove) {
+                itemElementToRemove.remove();
+              } else {
+                // Fallback to re-rendering if direct removal is problematic
+                renderTaClassesOnPage(currentTaClasses);
+              }
+
+              alert("TA Class deleted successfully!");
+              console.log("Content Script: TA class deleted.", taId);
+
+              // If the list becomes empty after deletion, update the container message
+              if (currentTaClasses.length === 0) {
+                  const container = document.getElementById('custom-ta-classes-container');
+                  if (container && container.querySelector('ul')) { // Check if ul exists
+                      const ulElement = container.querySelector('ul');
+                      if (ulElement.children.length === 0) { // Check if DOM reflects empty after removal
+                           // If renderTaClassesOnPage was called, it handles the empty message.
+                           // If not (direct DOM removal), we might need to explicitly call it or set empty message.
+                           renderTaClassesOnPage([]); // Call to show "No TA classes" message
+                      }
+                  } else if (container) { // No ul, means renderTaClassesOnPage already set empty message
+                      renderTaClassesOnPage([]);
+                  }
+              }
+
+            } else {
+              alert("Error: TA class to delete not found. It might have already been deleted.");
+              console.error("Content Script: TA class to delete not found for ID:", taId);
+            }
+          } catch (error) {
+            console.error("Content Script: Error deleting TA class:", error);
+            alert("Failed to delete TA class. See console for details.");
+          }
+        }
+      }
+    });
+    taContainer.dataset.listenersAttached = 'true'; // Mark listeners as attached
+    console.log("Content Script: TA item action listeners set up on #custom-ta-classes-container.");
+  }
+}
+
+function injectThemeToggleButton(initialStateIsThemed) {
+  if (document.getElementById('kmitl-theme-toggle-button')) return; // Already injected
+
+  const toggleButton = document.createElement('button');
+  toggleButton.id = 'kmitl-theme-toggle-button';
+  // Text will be set based on current theme state
+  toggleButton.style.position = 'fixed';
+  toggleButton.style.bottom = '70px'; // Position above Add TA button or adjust
+  toggleButton.style.right = '20px';  // (Adjust if Add TA button is also bottom-right)
+  toggleButton.style.zIndex = '10000';
+  // Basic styling, to be enhanced by page_theme.css
+
+  function updateButtonText(isThemed) {
+    toggleButton.textContent = isThemed ? 'View Original Design' : 'View KMITL+ Theme';
+  }
+
+  updateButtonText(initialStateIsThemed); // Set initial text
+
+  toggleButton.addEventListener('click', async () => {
+    const isCurrentlyThemed = !document.body.classList.contains(THEME_DISABLED_BODY_CLASS);
+    const newThemedState = !isCurrentlyThemed;
+
+    if (newThemedState) {
+      document.body.classList.remove(THEME_DISABLED_BODY_CLASS);
+    } else {
+      document.body.classList.add(THEME_DISABLED_BODY_CLASS);
+    }
+    updateButtonText(newThemedState);
+
+    try {
+      await chrome.storage.local.set({ [THEME_ENABLED_STORAGE_KEY]: newThemedState });
+      console.log('Content Script: Theme state saved:', newThemedState);
+    } catch (error) {
+      console.error('Content Script: Error saving theme state:', error);
+    }
+  });
+  document.body.appendChild(toggleButton);
+  console.log('Content Script: Theme toggle button injected.');
+}
+
+
 async function initializeExtensionFeatures() {
   console.log("Content Script: Initializing KMITL Schedule Enhancer features on page load.");
 
-  // The original schedule is assumed to be rendered by the page itself.
-  // This script primarily enhances it or adds new elements like TA classes.
-  // extractScheduleDataFromPage() is available for the popup if it needs to pull data.
+  // --- Theme Initialization ---
+  let themeEnabled = true; // Default to theme being ON
+  try {
+    const result = await chrome.storage.local.get([THEME_ENABLED_STORAGE_KEY]);
+    if (result[THEME_ENABLED_STORAGE_KEY] !== undefined) {
+      themeEnabled = result[THEME_ENABLED_STORAGE_KEY];
+    }
+    console.log('Content Script: Loaded theme state:', themeEnabled);
+  } catch (error) {
+    console.error('Content Script: Error loading theme state:', error);
+    // Proceed with default themeEnabled = true
+  }
+
+  if (!themeEnabled) { // If theme is stored as disabled
+    document.body.classList.add(THEME_DISABLED_BODY_CLASS);
+  } else {
+    document.body.classList.remove(THEME_DISABLED_BODY_CLASS); // Ensure enabled if no class or stored as true
+  }
+  // --- End Theme Initialization ---
 
   try {
     const taClasses = await fetchTaClassesFromStorage();
-    renderTaClassesOnPage(taClasses);
-    if (!document.getElementById('inpage-add-ta-button')) { // Inject only if not already present
-        injectAddTaButtonAndForm();
+    renderTaClassesOnPage(taClasses); // This might create #custom-ta-classes-container
+
+    // Ensure UI elements are injected only once
+    if (!document.getElementById('inpage-add-ta-button')) {
+        injectAddTaButtonAndForm(); // This creates the form and its buttons
+    }
+    if (!document.getElementById('kmitl-theme-toggle-button')) {
+        injectThemeToggleButton(themeEnabled); // Pass initial state
+    }
+
+    // Setup listeners after TA classes and form are potentially on the page
+    // Check if listener setup function has already run to prevent multiple attachments
+    if (!document.getElementById('custom-ta-classes-container')?.dataset.listenersAttached) {
+        setupTaItemActionListeners(); // Contains edit/delete listeners for TA items
+        if(document.getElementById('custom-ta-classes-container')) {
+            document.getElementById('custom-ta-classes-container').dataset.listenersAttached = 'true';
+        }
     }
   } catch (error) {
     console.error("Content Script: Error during initial feature setup:", error);
