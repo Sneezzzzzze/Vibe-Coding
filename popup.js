@@ -112,17 +112,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
  const fetchTaClassesFromStorage = async () => { /* ... as before ... */ };
- const loadScheduleAndTaData = async () => { /* ... as before ... */ };
-  const saveScheduleOrder = async () => { /* ... as before ... */ };
-  const handleAddOrUpdateTaClassSubmit = async (event) => { /* ... as before ... */ };
 
   // --- Simplified versions of copied async data functions for brevity in this final review block ---
-  saveScheduleOrder = async () => { /* Assume implemented as previously */
+  const saveScheduleOrder = async () => { /* Assume implemented as previously */
       const orderedIds = currentScheduleData.map(item => item.id);
       await chrome.storage.local.set({ scheduleOrder: orderedIds });
       if (chrome.runtime.lastError) console.error("Popup: Save order err:", chrome.runtime.lastError.message);
   };
-  loadScheduleAndTaData = async () => { /* Assume implemented as previously */
+  const loadScheduleAndTaData = async () => { /* Assume implemented as previously */
     loadingMessage.style.display = 'block'; noScheduleMessage.style.display = 'none';
     scheduleList.style.display = 'none'; scheduleList.innerHTML = ''; let regularSchedule = [], taClasses = [], fetchError = null;
     try { regularSchedule = await fetchScheduleDataFromContentScript(); } catch (e) { fetchError = e; }
@@ -137,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentScheduleData.length === 0 && fetchError) { noScheduleMessage.textContent = fetchError.message; noScheduleMessage.style.display = 'block'; scheduleList.style.display = 'none';}
     else if (currentScheduleData.length === 0) { noScheduleMessage.textContent = "No data. Add TAs or refresh KMITL page."; noScheduleMessage.style.display = 'block'; scheduleList.style.display = 'none';}
   };
-  handleAddOrUpdateTaClassSubmit = async (event) => { /* Assume implemented as previously */
+  const handleAddOrUpdateTaClassSubmit = async (event) => { /* Assume implemented as previously */
     event.preventDefault(); const subject = document.getElementById('ta-subject').value.trim(); const day = document.getElementById('ta-day').value; const time = document.getElementById('ta-time').value.trim(); const room = document.getElementById('ta-room').value.trim();
     if (!subject || !day || !time) { alert("Fill Subject, Day, and Time."); return; }
     try {
